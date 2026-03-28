@@ -7,13 +7,13 @@
 @layer base {
   :root,
   .dark {
-    --background: 0 0% 7%;
+    --background: 0 0% 7.1%;
     --foreground: 0 0% 96%;
 
-    --card: 0 0% 10%;
+    --card: 0 0% 10.2%;
     --card-foreground: 0 0% 96%;
 
-    --popover: 0 0% 10%;
+    --popover: 0 0% 10.2%;
     --popover-foreground: 0 0% 96%;
 
     --primary: 24 100% 60%;
@@ -31,19 +31,19 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
+    --border: 0 0% 9%;
+    --input: 0 0% 9%;
     --ring: 24 100% 60%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 7%;
+    --sidebar-background: 0 0% 7.1%;
     --sidebar-foreground: 0 0% 96%;
     --sidebar-primary: 24 100% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 16%;
     --sidebar-accent-foreground: 0 0% 96%;
-    --sidebar-border: 0 0% 20%;
+    --sidebar-border: 0 0% 9%;
     --sidebar-ring: 24 100% 60%;
 
     --chart-1: 0 78% 64%;

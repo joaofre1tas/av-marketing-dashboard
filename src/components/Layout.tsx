@@ -35,14 +35,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 import logoHorizontal from '@/assets/logo-horizontal.svg'
-import logoCircular from '@/assets/logo-circular.svg'
 import logoMonogram from '@/assets/logo-monogram.svg'
 
 const navLinks = [
-  { path: '/', label: 'Análise', icon: LayoutDashboard },
+  { path: '/analise', label: 'Análise', icon: LayoutDashboard },
   { path: '/conteudo', label: 'Gerenciador de Conteúdo', icon: FileText },
   { path: '/calendario', label: 'Calendário', icon: CalendarDays },
-  { path: '/concorrencia', label: 'Monitoramento', icon: Activity },
+  { path: '/monitoramento', label: 'Monitoramento', icon: Activity },
 ]
 
 export default function Layout() {
@@ -143,13 +142,6 @@ export default function Layout() {
         </header>
 
         <main className="flex-1 p-4 md:p-8 overflow-auto relative z-0 min-h-[calc(100vh-4rem)]">
-          <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden flex items-center justify-center opacity-5">
-            <img
-              src={logoCircular}
-              alt="Watermark"
-              className="w-[80vw] max-w-[800px] h-auto object-contain"
-            />
-          </div>
           <Outlet />
         </main>
       </SidebarInset>
