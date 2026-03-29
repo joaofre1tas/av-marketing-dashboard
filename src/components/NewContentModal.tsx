@@ -45,7 +45,7 @@ export default function NewContentModal() {
   const [postDate, setPostDate] = useState<Date>()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [status, setStatus] = useState<PostStatus>('Redação')
+  const [status, setStatus] = useState<PostStatus>('Decupagem')
   const [caption, setCaption] = useState('')
 
   const handleOpenChange = (open: boolean) => {
@@ -58,7 +58,7 @@ export default function NewContentModal() {
       setPostDate(undefined)
       setTitle('')
       setDescription('')
-      setStatus('Redação')
+      setStatus('Decupagem')
       setCaption('')
     }
   }
@@ -228,10 +228,13 @@ export default function NewContentModal() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="Decupagem">Decupagem</SelectItem>
                   <SelectItem value="Redação">Redação</SelectItem>
                   <SelectItem value="Revisão">Revisão</SelectItem>
                   <SelectItem value="Alteração">Alteração</SelectItem>
                   <SelectItem value="Produção">Produção</SelectItem>
+                  <SelectItem value="Agendamento">Agendamento</SelectItem>
+                  <SelectItem value="Postado">Postado</SelectItem>
                 </SelectContent>
               </Select>
             </div>

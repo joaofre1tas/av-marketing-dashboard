@@ -1,12 +1,18 @@
 import { useState } from 'react'
 import { Calendar as CalendarIcon, List, LayoutGrid } from 'lucide-react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import useMainStore from '@/stores/main'
 
 export default function CalendarTab() {
   const { posts } = useMainStore()
   const [view, setView] = useState('month')
+  const [statusFilter, setStatusFilter] = useState('Todos')
+
+  const filteredPosts = posts.filter(
+    (item) => statusFilter === 'Todos' || item.status === statusFilter
+  )
 
   return (
     <div className="bg-card border border-border rounded-lg p-6 shadow-sm h-[600px] flex flex-col">
@@ -18,12 +24,29 @@ export default function CalendarTab() {
           </p>
         </div>
 
-        <ToggleGroup
-          type="single"
-          value={view}
-          onValueChange={(v) => v && setView(v)}
-          className="bg-background border border-border p-1 rounded-md"
-        >
+        <div className="flex items-center gap-4">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filtrar por status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Todos">Todos</SelectItem>
+              <SelectItem value="Decupagem">Decupagem</SelectItem>
+              <SelectItem value="Redação">Redação</SelectItem>
+              <SelectItem value="Revisão">Revisão</SelectItem>
+              <SelectItem value="Alteração">Alteração</SelectItem>
+              <SelectItem value="Produção">Produção</SelectItem>
+              <SelectItem value="Agendamento">Agendamento</SelectItem>
+              <SelectItem value="Postado">Postado</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <ToggleGroup
+            type="single"
+            value={view}
+            onValueChange={(v) => v && setView(v)}
+            className="bg-background border border-border p-1 rounded-md"
+          >
           <ToggleGroupItem
             value="month"
             aria-label="Month view"
@@ -70,7 +93,7 @@ export default function CalendarTab() {
 
         {view === 'list' && (
           <div className="flex-1 p-4 space-y-2 overflow-auto">
-            {posts.map((item) => (
+            {filteredPosts.map((item) => (
               <div
                 key={item.id}
                 className="flex items-center gap-4 p-3 rounded-md border border-border hover:bg-muted/50 transition-colors"
@@ -86,8 +109,8 @@ export default function CalendarTab() {
                 </div>
               </div>
             ))}
-            {posts.length === 0 && (
-              <p className="text-sm text-muted-foreground p-4">Nenhuma publicação agendada.</p>
+            {filteredPosts.length === 0 && (
+              <p className="text-sm text-muted-foreground p-4">Nenhum conteúdo encontrado para o filtro selecionado.</p>
             )}
           </div>
         )}

@@ -7,13 +7,20 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
-import { Calendar as CalendarIcon, Clock, User, CheckCircle2 } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, CheckCircle2 } from 'lucide-react'
 import useMainStore from '@/stores/main'
 
 const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
-const getDaysInMonth = (year: number, month: number, posts: any[]) => {
+const getDaysInMonth = (year: number, month: number, posts: any[], statusFilter: string) => {
   const date = new Date(year, month, 1)
   const days = []
 
@@ -27,6 +34,7 @@ const getDaysInMonth = (year: number, month: number, posts: any[]) => {
 
     const dayPosts = posts
       .filter((p) => {
+        if (statusFilter !== 'Todos' && p.status !== statusFilter) return false
         const pDate = new Date(p.postDate)
         return (
           pDate.getDate() === curDate.getDate() &&
@@ -57,20 +65,61 @@ const getDaysInMonth = (year: number, month: number, posts: any[]) => {
 export default function CalendarPage() {
   const { posts } = useMainStore()
   const [selectedDate, setSelectedDate] = useState<{ date: Date; events: any[] } | null>(null)
+  const [statusFilter, setStatusFilter] = useState('Todos')
 
   const today = new Date()
-  const days = getDaysInMonth(today.getFullYear(), today.getMonth(), posts)
+  const days = getDaysInMonth(today.getFullYear(), today.getMonth(), posts, statusFilter)
 
   const isToday = (d: Date) =>
     d.getDate() === today.getDate() &&
     d.getMonth() === today.getMonth() &&
     d.getFullYear() === today.getFullYear()
 
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'Decupagem':
+        return 'bg-purple-500/10 text-purple-500 border-purple-500/20'
+      case 'Redação':
+        return 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+      case 'Revisão':
+        return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+      case 'Alteração':
+        return 'bg-orange-500/10 text-orange-500 border-orange-500/20'
+      case 'Produção':
+        return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+      case 'Agendamento':
+        return 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20'
+      case 'Postado':
+        return 'bg-green-600/10 text-green-500 border-green-600/20'
+      default:
+        return 'bg-muted/50 text-muted-foreground border-border'
+    }
+  }
+
   return (
     <div className="animate-fade-in flex flex-col gap-6">
-      <div>
-        <h1 className="text-3xl font-semibold mb-1">Calendário de Conteúdo</h1>
-        <p className="text-muted-foreground">Visualize os agendamentos e publicações do mês.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-semibold mb-1">Calendário de Conteúdo</h1>
+          <p className="text-muted-foreground">Visualize os agendamentos e publicações do mês.</p>
+        </div>
+        <div className="w-full sm:w-64">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="bg-card border-border">
+              <SelectValue placeholder="Filtrar por status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Todos">Todos</SelectItem>
+              <SelectItem value="Decupagem">Decupagem</SelectItem>
+              <SelectItem value="Redação">Redação</SelectItem>
+              <SelectItem value="Revisão">Revisão</SelectItem>
+              <SelectItem value="Alteração">Alteração</SelectItem>
+              <SelectItem value="Produção">Produção</SelectItem>
+              <SelectItem value="Agendamento">Agendamento</SelectItem>
+              <SelectItem value="Postado">Postado</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="grid grid-cols-7 gap-px bg-border rounded-xl overflow-hidden mt-2">
@@ -120,7 +169,7 @@ export default function CalendarPage() {
       </div>
 
       <Sheet open={!!selectedDate} onOpenChange={(open) => !open && setSelectedDate(null)}>
-        <SheetContent className="bg-card border-l-border">
+        <SheetContent className="bg-card border-l-border overflow-y-auto">
           <SheetHeader className="mb-6">
             <SheetTitle className="text-xl">
               {selectedDate?.date.toLocaleDateString('pt-BR', {
@@ -141,10 +190,7 @@ export default function CalendarPage() {
                 <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-av" />
                 <div className="flex justify-between items-start">
                   <h3 className="font-semibold text-base">{e.title}</h3>
-                  <Badge
-                    variant="outline"
-                    className="bg-orange-500/10 text-orange-500 border-orange-500/20"
-                  >
+                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                     {e.type}
                   </Badge>
                 </div>
@@ -152,7 +198,13 @@ export default function CalendarPage() {
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4" />{' '}
                     <span>
-                      Status: <strong className="text-foreground">{e.status}</strong>
+                      Status:{' '}
+                      <Badge
+                        variant="outline"
+                        className={cn('ml-1 font-medium', getStatusBadgeClass(e.status))}
+                      >
+                        {e.status}
+                      </Badge>
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -161,6 +213,11 @@ export default function CalendarPage() {
                 </div>
               </div>
             ))}
+            {selectedDate?.events.length === 0 && (
+              <p className="text-muted-foreground text-sm text-center py-8">
+                Nenhum evento para esta data.
+              </p>
+            )}
           </div>
         </SheetContent>
       </Sheet>

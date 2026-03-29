@@ -67,10 +67,13 @@ function PostSection({ post }: { post: Post }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="Decupagem">Decupagem</SelectItem>
               <SelectItem value="Redação">Redação</SelectItem>
               <SelectItem value="Revisão">Revisão</SelectItem>
               <SelectItem value="Alteração">Alteração</SelectItem>
               <SelectItem value="Produção">Produção</SelectItem>
+              <SelectItem value="Agendamento">Agendamento</SelectItem>
+              <SelectItem value="Postado">Postado</SelectItem>
             </SelectContent>
           </Select>
         </div>

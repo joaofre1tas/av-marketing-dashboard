@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react'
 import { DriveItem } from '@/pages/client-tabs/drive/types'
 
-export type PostStatus = 'Redação' | 'Revisão' | 'Alteração' | 'Produção'
+export type PostStatus =
+  | 'Decupagem'
+  | 'Redação'
+  | 'Revisão'
+  | 'Alteração'
+  | 'Produção'
+  | 'Agendamento'
+  | 'Postado'
 export type PostFormat = 'Reels' | 'Carrossel' | 'Estático'
 
 export interface PostComment {
