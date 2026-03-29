@@ -124,6 +124,14 @@ export default function useMainStore() {
       state = { ...state, posts: [...state.posts, post] }
       notify()
     },
+    updatePost: (id: string, updates: Partial<Post>) => {
+      state = { ...state, posts: state.posts.map((p) => (p.id === id ? { ...p, ...updates } : p)) }
+      notify()
+    },
+    deletePost: (id: string) => {
+      state = { ...state, posts: state.posts.filter((p) => p.id !== id) }
+      notify()
+    },
     updatePostStatus: (id: string, status: PostStatus) => {
       state = { ...state, posts: state.posts.map((p) => (p.id === id ? { ...p, status } : p)) }
       notify()
