@@ -38,12 +38,16 @@ export default function OverviewTab() {
   const [colors, setColors] = useState(client?.guidelines?.colors || '')
   const [voiceAndTone, setVoiceAndTone] = useState(client?.guidelines?.voiceAndTone || '')
   const [socials, setSocials] = useState<SocialMediaLink[]>(client?.socials || [])
+  const [fontsFile, setFontsFile] = useState<File | null>(null)
+  const [logoFile, setLogoFile] = useState<File | null>(null)
 
   useEffect(() => {
     if (client) {
       setColors(client.guidelines?.colors || '')
       setVoiceAndTone(client.guidelines?.voiceAndTone || '')
       setSocials(client.socials || [])
+      setFontsFile(null)
+      setLogoFile(null)
     }
   }, [client])
 
@@ -87,11 +91,16 @@ export default function OverviewTab() {
   }
 
   const handleSaveChanges = () => {
+    const logoUrl = logoFile ? URL.createObjectURL(logoFile) : client.guidelines?.logo
+    const fontsName = fontsFile ? fontsFile.name : client.guidelines?.fonts
+
     updateClient(client.id, {
       socials: socials.filter((s) => s.url.trim() !== ''),
       guidelines: {
         ...client.guidelines,
         colors,
+        fonts: fontsName,
+        logo: logoUrl,
         voiceAndTone,
       },
     })
@@ -158,10 +167,14 @@ export default function OverviewTab() {
                   <Input
                     type="file"
                     accept=".ttf,.otf"
+                    onChange={(e) => setFontsFile(e.target.files?.[0] || null)}
                     className="bg-background border-border flex-1 file:text-foreground file:border-0 file:bg-transparent file:font-medium"
                   />
                   {client.guidelines?.fonts && (
-                    <span className="text-xs text-muted-foreground max-w-[80px] truncate">
+                    <span
+                      className="text-xs text-muted-foreground max-w-[80px] truncate"
+                      title={client.guidelines.fonts}
+                    >
                       {client.guidelines.fonts}
                     </span>
                   )}
@@ -173,10 +186,14 @@ export default function OverviewTab() {
                   <Input
                     type="file"
                     accept=".pdf,.png,.svg"
+                    onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
                     className="bg-background border-border flex-1 file:text-foreground file:border-0 file:bg-transparent file:font-medium"
                   />
-                  {client.guidelines?.logo && !client.guidelines.logo.startsWith('blob:') && (
-                    <span className="text-xs text-muted-foreground max-w-[80px] truncate">
+                  {client.guidelines?.logo && (
+                    <span
+                      className="text-xs text-muted-foreground max-w-[80px] truncate"
+                      title="Logotipo salvo"
+                    >
                       Ativo existente
                     </span>
                   )}

@@ -220,21 +220,21 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
 
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Diretrizes de marca (Opcional)
+                Diretrizes de marca (opcional)
               </h3>
               <div className="space-y-4">
-                <div className="flex flex-col gap-2">
-                  <Label>Cores</Label>
-                  <Input
-                    value={colors}
-                    onChange={(e) => setColors(e.target.value)}
-                    placeholder="Ex: primária #FF5C00, secundária #171717"
-                    className="bg-background border-[#171717]"
-                  />
-                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <Label>Fontes (.ttf, .otf)</Label>
+                    <Label>Cores da Marca (HEX)</Label>
+                    <Input
+                      value={colors}
+                      onChange={(e) => setColors(e.target.value)}
+                      placeholder="#121212, #FF4A4A"
+                      className="bg-background border-[#171717]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Tipografia (.ttf, .otf)</Label>
                     <Input
                       type="file"
                       accept=".ttf,.otf"
@@ -242,7 +242,7 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
                       className="bg-background border-[#171717] file:text-foreground file:border-0 file:bg-transparent file:font-medium"
                     />
                   </div>
-                  <div className="flex flex-col gap-2">
+                  <div className="col-span-1 md:col-span-2 flex flex-col gap-2">
                     <Label>Logotipo (.pdf, .png, .svg)</Label>
                     <Input
                       type="file"
@@ -251,15 +251,15 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
                       className="bg-background border-[#171717] file:text-foreground file:border-0 file:bg-transparent file:font-medium"
                     />
                   </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Tom de voz e instruções gerais</Label>
-                  <Textarea
-                    value={voiceAndTone}
-                    onChange={(e) => setVoiceAndTone(e.target.value)}
-                    placeholder="Insira diretrizes de comunicação, palavras a evitar..."
-                    className="min-h-[100px] bg-background border-[#171717]"
-                  />
+                  <div className="col-span-1 md:col-span-2 flex flex-col gap-2">
+                    <Label>Tom de Voz e Instruções Gerais</Label>
+                    <Textarea
+                      value={voiceAndTone}
+                      onChange={(e) => setVoiceAndTone(e.target.value)}
+                      placeholder="Insira as diretrizes de comunicação, palavras a evitar, personalidade da marca..."
+                      className="min-h-[100px] bg-background border-[#171717]"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
