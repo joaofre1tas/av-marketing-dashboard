@@ -109,7 +109,7 @@ export function EditClientModal({ client, open, onOpenChange }: EditClientModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col bg-[#121212] border-[#171717] font-sans">
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col bg-[#121212] border-[#171717] font-sans overflow-hidden">
         <DialogHeader className="shrink-0">
           <DialogTitle className="text-xl">Editar Cliente</DialogTitle>
           <DialogDescription>
@@ -177,7 +177,7 @@ export function EditClientModal({ client, open, onOpenChange }: EditClientModalP
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                  Redes sociais gerenciadas (Opcional)
+                  Redes sociais gerenciadas
                 </h3>
                 <Button
                   variant="outline"
@@ -231,7 +231,7 @@ export function EditClientModal({ client, open, onOpenChange }: EditClientModalP
 
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Diretrizes de marca (opcional)
+                Diretrizes de marca
               </h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
