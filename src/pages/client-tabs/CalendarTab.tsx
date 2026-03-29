@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { Calendar as CalendarIcon, List, LayoutGrid } from 'lucide-react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 import useMainStore from '@/stores/main'
 
@@ -11,7 +17,7 @@ export default function CalendarTab() {
   const [statusFilter, setStatusFilter] = useState('Todos')
 
   const filteredPosts = posts.filter(
-    (item) => statusFilter === 'Todos' || item.status === statusFilter
+    (item) => statusFilter === 'Todos' || item.status === statusFilter,
   )
 
   return (
@@ -47,20 +53,29 @@ export default function CalendarTab() {
             onValueChange={(v) => v && setView(v)}
             className="bg-background border border-border p-1 rounded-md"
           >
-          <ToggleGroupItem
-            value="month"
-            aria-label="Month view"
-            className="data-[state=on]:bg-muted"
-          >
-            <LayoutGrid className="h-4 w-4 mr-2" /> Mês
-          </ToggleGroupItem>
-          <ToggleGroupItem value="week" aria-label="Week view" className="data-[state=on]:bg-muted">
-            <CalendarIcon className="h-4 w-4 mr-2" /> Semana
-          </ToggleGroupItem>
-          <ToggleGroupItem value="list" aria-label="List view" className="data-[state=on]:bg-muted">
-            <List className="h-4 w-4 mr-2" /> Lista
-          </ToggleGroupItem>
-        </ToggleGroup>
+            <ToggleGroupItem
+              value="month"
+              aria-label="Month view"
+              className="data-[state=on]:bg-muted"
+            >
+              <LayoutGrid className="h-4 w-4 mr-2" /> Mês
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="week"
+              aria-label="Week view"
+              className="data-[state=on]:bg-muted"
+            >
+              <CalendarIcon className="h-4 w-4 mr-2" /> Semana
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="list"
+              aria-label="List view"
+              className="data-[state=on]:bg-muted"
+            >
+              <List className="h-4 w-4 mr-2" /> Lista
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
       </div>
 
       <div className="flex-1 border border-border rounded-lg bg-background flex flex-col overflow-hidden">
@@ -110,7 +125,9 @@ export default function CalendarTab() {
               </div>
             ))}
             {filteredPosts.length === 0 && (
-              <p className="text-sm text-muted-foreground p-4">Nenhum conteúdo encontrado para o filtro selecionado.</p>
+              <p className="text-sm text-muted-foreground p-4">
+                Nenhum conteúdo encontrado para o filtro selecionado.
+              </p>
             )}
           </div>
         )}
