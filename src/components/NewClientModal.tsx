@@ -43,6 +43,11 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [voiceAndTone, setVoiceAndTone] = useState('')
 
+  const [niche, setNiche] = useState('')
+  const [responsible, setResponsible] = useState('')
+  const [targetAudience, setTargetAudience] = useState('')
+  const [status, setStatus] = useState<'Ativo' | 'Pausado' | 'Encerrado'>('Ativo')
+
   const handleAddSocial = () => {
     setSocials([...socials, { platform: 'Instagram', url: '' }])
   }
@@ -82,6 +87,10 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
         logo: logoUrl,
         voiceAndTone,
       },
+      niche,
+      responsible,
+      targetAudience,
+      status,
     })
 
     toast({
@@ -101,13 +110,17 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
       setFontsFile(null)
       setLogoFile(null)
       setVoiceAndTone('')
+      setNiche('')
+      setResponsible('')
+      setTargetAudience('')
+      setStatus('Ativo')
     }
     onOpenChange(newOpen)
   }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col bg-[#121212] border-[#171717] font-sans">
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col bg-[#121212] border-[#171717] font-sans">
         <DialogHeader className="shrink-0">
           <DialogTitle className="text-xl">Novo Cliente</DialogTitle>
           <DialogDescription>
@@ -133,38 +146,88 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
                     className="bg-background border-[#171717]"
                   />
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label>
+                      Arquivo de skill <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      type="file"
+                      accept=".skill,*/*"
+                      onChange={(e) => setSkillFile(e.target.files?.[0] || null)}
+                      className="bg-background border-[#171717] file:text-foreground file:border-0 file:bg-transparent file:font-medium"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>
+                      Capa do perfil <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      type="file"
+                      accept=".png,.jpg,.jpeg,.webp"
+                      onChange={(e) => setCoverImage(e.target.files?.[0] || null)}
+                      className="bg-background border-[#171717] file:text-foreground file:border-0 file:bg-transparent file:font-medium"
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      Tamanho recomendado: 1200 x 400px
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Informações do Cliente
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="flex flex-col gap-2">
-                  <Label>
-                    Arquivo de skill <span className="text-destructive">*</span>
-                  </Label>
+                  <Label>Nicho</Label>
                   <Input
-                    type="file"
-                    accept=".skill,*/*"
-                    onChange={(e) => setSkillFile(e.target.files?.[0] || null)}
-                    className="bg-background border-[#171717] file:text-foreground file:border-0 file:bg-transparent file:font-medium"
+                    value={niche}
+                    onChange={(e) => setNiche(e.target.value)}
+                    placeholder="Ex: Tecnologia"
+                    className="bg-background border-[#171717]"
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label>
-                    Capa do perfil <span className="text-destructive">*</span>
-                  </Label>
+                  <Label>Responsável</Label>
                   <Input
-                    type="file"
-                    accept=".png,.jpg,.jpeg,.webp"
-                    onChange={(e) => setCoverImage(e.target.files?.[0] || null)}
-                    className="bg-background border-[#171717] file:text-foreground file:border-0 file:bg-transparent file:font-medium"
+                    value={responsible}
+                    onChange={(e) => setResponsible(e.target.value)}
+                    placeholder="Ex: João Silva"
+                    className="bg-background border-[#171717]"
                   />
-                  <span className="text-xs text-muted-foreground">
-                    Tamanho recomendado: 1200 x 400px
-                  </span>
                 </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Status</Label>
+                  <Select value={status} onValueChange={(val: any) => setStatus(val)}>
+                    <SelectTrigger className="bg-background border-[#171717]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ativo">Ativo</SelectItem>
+                      <SelectItem value="Pausado">Pausado</SelectItem>
+                      <SelectItem value="Encerrado">Encerrado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label>Público-alvo</Label>
+                <Textarea
+                  value={targetAudience}
+                  onChange={(e) => setTargetAudience(e.target.value)}
+                  placeholder="Descreva o público-alvo do cliente"
+                  className="min-h-[80px] bg-background border-[#171717]"
+                />
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                  Redes sociais gerenciadas
+                  Redes sociais gerenciadas (Opcional)
                 </h3>
                 <Button
                   variant="outline"
@@ -218,7 +281,7 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
 
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Diretrizes de marca
+                Diretrizes de marca (Opcional)
               </h3>
               <div className="space-y-4">
                 <div className="flex flex-col gap-2">

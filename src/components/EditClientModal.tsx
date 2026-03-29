@@ -42,12 +42,22 @@ export function EditClientModal({ client, open, onOpenChange }: EditClientModalP
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [voiceAndTone, setVoiceAndTone] = useState('')
 
+  const [niche, setNiche] = useState('')
+  const [responsible, setResponsible] = useState('')
+  const [targetAudience, setTargetAudience] = useState('')
+  const [status, setStatus] = useState<'Ativo' | 'Pausado' | 'Encerrado'>('Ativo')
+
   useEffect(() => {
     if (client && open) {
       setName(client.name)
       setSocials(client.socials || [])
       setColors(client.guidelines?.colors || '')
       setVoiceAndTone(client.guidelines?.voiceAndTone || '')
+      setNiche(client.niche || '')
+      setResponsible(client.responsible || '')
+      setTargetAudience(client.targetAudience || '')
+      setStatus(client.status || 'Ativo')
+
       setSkillFile(null)
       setCoverImage(null)
       setFontsFile(null)
@@ -90,6 +100,10 @@ export function EditClientModal({ client, open, onOpenChange }: EditClientModalP
       skillFile: skillName,
       coverImage: coverUrl,
       socials: socials.filter((s) => s.url.trim() !== ''),
+      niche,
+      responsible,
+      targetAudience,
+      status,
       guidelines: {
         ...client.guidelines,
         colors,
@@ -108,7 +122,7 @@ export function EditClientModal({ client, open, onOpenChange }: EditClientModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col bg-[#121212] border-[#171717] font-sans">
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col bg-[#121212] border-[#171717] font-sans">
         <DialogHeader className="shrink-0">
           <DialogTitle className="text-xl">Editar Cliente</DialogTitle>
           <DialogDescription>
@@ -134,42 +148,97 @@ export function EditClientModal({ client, open, onOpenChange }: EditClientModalP
                     className="bg-background border-[#171717]"
                   />
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label>
+                      Arquivo de skill <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      type="file"
+                      accept=".skill,*/*"
+                      onChange={(e) => setSkillFile(e.target.files?.[0] || null)}
+                      className="bg-background border-[#171717] file:text-foreground file:border-0 file:bg-transparent file:font-medium"
+                    />
+                    {client?.skillFile && (
+                      <span
+                        className="text-xs text-muted-foreground truncate"
+                        title={client.skillFile}
+                      >
+                        Atual: {client.skillFile}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>
+                      Capa do perfil <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      type="file"
+                      accept=".png,.jpg,.jpeg,.webp"
+                      onChange={(e) => setCoverImage(e.target.files?.[0] || null)}
+                      className="bg-background border-[#171717] file:text-foreground file:border-0 file:bg-transparent file:font-medium"
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      Tamanho recomendado: 1200 x 400px{' '}
+                      {client?.coverImage ? '(Imagem atual mantida)' : ''}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Informações do Cliente
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="flex flex-col gap-2">
-                  <Label>
-                    Arquivo de skill <span className="text-destructive">*</span>
-                  </Label>
+                  <Label>Nicho</Label>
                   <Input
-                    type="file"
-                    accept=".skill,*/*"
-                    onChange={(e) => setSkillFile(e.target.files?.[0] || null)}
-                    className="bg-background border-[#171717] file:text-foreground file:border-0 file:bg-transparent file:font-medium"
+                    value={niche}
+                    onChange={(e) => setNiche(e.target.value)}
+                    placeholder="Ex: Tecnologia"
+                    className="bg-background border-[#171717]"
                   />
-                  {client?.skillFile && (
-                    <span className="text-xs text-muted-foreground">Atual: {client.skillFile}</span>
-                  )}
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label>
-                    Capa do perfil <span className="text-destructive">*</span>
-                  </Label>
+                  <Label>Responsável</Label>
                   <Input
-                    type="file"
-                    accept=".png,.jpg,.jpeg,.webp"
-                    onChange={(e) => setCoverImage(e.target.files?.[0] || null)}
-                    className="bg-background border-[#171717] file:text-foreground file:border-0 file:bg-transparent file:font-medium"
+                    value={responsible}
+                    onChange={(e) => setResponsible(e.target.value)}
+                    placeholder="Ex: João Silva"
+                    className="bg-background border-[#171717]"
                   />
-                  <span className="text-xs text-muted-foreground">
-                    Tamanho recomendado: 1200 x 400px{' '}
-                    {client?.coverImage ? '(Imagem atual mantida se não alterada)' : ''}
-                  </span>
                 </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Status</Label>
+                  <Select value={status} onValueChange={(val: any) => setStatus(val)}>
+                    <SelectTrigger className="bg-background border-[#171717]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ativo">Ativo</SelectItem>
+                      <SelectItem value="Pausado">Pausado</SelectItem>
+                      <SelectItem value="Encerrado">Encerrado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label>Público-alvo</Label>
+                <Textarea
+                  value={targetAudience}
+                  onChange={(e) => setTargetAudience(e.target.value)}
+                  placeholder="Descreva o público-alvo do cliente"
+                  className="min-h-[80px] bg-background border-[#171717]"
+                />
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                  Redes sociais gerenciadas
+                  Redes sociais gerenciadas (Opcional)
                 </h3>
                 <Button
                   variant="outline"
@@ -223,7 +292,7 @@ export function EditClientModal({ client, open, onOpenChange }: EditClientModalP
 
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Diretrizes de marca
+                Diretrizes de marca (Opcional)
               </h3>
               <div className="space-y-4">
                 <div className="flex flex-col gap-2">
@@ -245,7 +314,10 @@ export function EditClientModal({ client, open, onOpenChange }: EditClientModalP
                       className="bg-background border-[#171717] file:text-foreground file:border-0 file:bg-transparent file:font-medium"
                     />
                     {client?.guidelines?.fonts && (
-                      <span className="text-xs text-muted-foreground">
+                      <span
+                        className="text-xs text-muted-foreground truncate"
+                        title={client.guidelines.fonts}
+                      >
                         Atual: {client.guidelines.fonts}
                       </span>
                     )}
