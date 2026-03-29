@@ -227,6 +227,10 @@ export default function useMainStore() {
       }
       notify()
     },
+    deleteClient: (id: string) => {
+      state = { ...state, clients: state.clients.filter((c) => c.id !== id) }
+      notify()
+    },
     deleteDriveItem: (id: string) => {
       state = {
         ...state,

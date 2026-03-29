@@ -1,20 +1,49 @@
-import { useParams, Link, Navigate } from 'react-router-dom'
-import { ChevronLeft } from 'lucide-react'
+import { useState } from 'react'
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom'
+import { ChevronLeft, Edit, Trash2 } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import OverviewTab from './client-tabs/OverviewTab'
 import CalendarTab from './client-tabs/CalendarTab'
 import DriveTab from './client-tabs/DriveTab'
 import useMainStore from '@/stores/main'
+import { EditClientModal } from '@/components/EditClientModal'
+import { useToast } from '@/hooks/use-toast'
 
 export default function ClientDetails() {
   const { id } = useParams()
-  const { clients } = useMainStore()
+  const navigate = useNavigate()
+  const { clients, deleteClient } = useMainStore()
+  const { toast } = useToast()
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const client = clients.find((c) => c.id === id)
 
   if (!client) {
     return <Navigate to="/clientes" replace />
+  }
+
+  const handleConfirmDelete = () => {
+    deleteClient(client.id)
+    toast({
+      title: 'Cliente excluído',
+      description: 'O cliente foi removido com sucesso.',
+    })
+    setIsDeleteDialogOpen(false)
+    navigate('/clientes')
   }
 
   const logoUrl =
@@ -35,6 +64,15 @@ export default function ClientDetails() {
           <AvatarFallback>{client.name.substring(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
         <h1 className="text-2xl font-semibold font-sans text-foreground">{client.name}</h1>
+
+        <div className="ml-auto flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
+            <Edit className="h-4 w-4 mr-2" /> Editar
+          </Button>
+          <Button variant="destructive" size="sm" onClick={() => setIsDeleteDialogOpen(true)}>
+            <Trash2 className="h-4 w-4 mr-2" /> Excluir
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
@@ -71,6 +109,28 @@ export default function ClientDetails() {
           </TabsContent>
         </div>
       </Tabs>
+
+      <EditClientModal client={client} open={isEditModalOpen} onOpenChange={setIsEditModalOpen} />
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent className="bg-[#121212] border-[#171717]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir cliente?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir {client.name}? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="border-t border-[#171717] pt-4 mt-4">
+            <AlertDialogCancel className="border-[#171717]">Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleConfirmDelete}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
