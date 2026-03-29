@@ -125,8 +125,8 @@ export default function Layout() {
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset className="relative">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b px-4 gap-4 bg-background/80 backdrop-blur-md sticky top-0 z-10">
+      <SidebarInset className="relative flex flex-col h-svh overflow-hidden bg-background">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border px-4 gap-4 bg-background/95 backdrop-blur-md z-20">
           <div className="flex flex-1 items-center gap-4">
             <SidebarTrigger />
             <div className="relative max-w-md w-full hidden sm:block">
@@ -143,7 +143,7 @@ export default function Layout() {
           </button>
         </header>
 
-        <main className="flex-1 p-4 md:p-8 overflow-auto relative z-0 min-h-[calc(100vh-4rem)]">
+        <main className="flex-1 p-4 md:p-8 overflow-auto relative z-0">
           <Outlet />
         </main>
       </SidebarInset>

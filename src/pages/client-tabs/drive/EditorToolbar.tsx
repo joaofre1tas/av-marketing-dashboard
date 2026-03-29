@@ -56,9 +56,9 @@ export function EditorToolbar() {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1 p-2 border-b border-[#171717] bg-[#121212] text-foreground sticky top-0 z-10">
+    <div className="flex flex-wrap items-center gap-1 p-2 bg-[#121212] text-foreground rounded-b-lg">
       <Select onValueChange={(v) => exec('formatBlock', v)}>
-        <SelectTrigger className="w-[120px] h-8 bg-transparent border-transparent hover:border-[#171717]">
+        <SelectTrigger className="w-[120px] h-8 bg-transparent border-transparent hover:border-border">
           <SelectValue placeholder="Estilo" />
         </SelectTrigger>
         <SelectContent>
@@ -69,7 +69,7 @@ export function EditorToolbar() {
           <SelectItem value="PRE">Código Block</SelectItem>
         </SelectContent>
       </Select>
-      <Separator orientation="vertical" className="h-6 mx-1 bg-[#171717]" />
+      <Separator orientation="vertical" className="h-6 mx-1 bg-border" />
 
       <ToggleGroup type="multiple" className="justify-start">
         <ToggleGroupItem
@@ -113,7 +113,7 @@ export function EditorToolbar() {
           <Code className="h-4 w-4" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <Separator orientation="vertical" className="h-6 mx-1 bg-[#171717]" />
+      <Separator orientation="vertical" className="h-6 mx-1 bg-border" />
 
       <ToggleGroup type="single" className="justify-start">
         <ToggleGroupItem value="left" onClick={() => exec('justifyLeft')} className="h-8 w-8 px-0">
@@ -141,7 +141,7 @@ export function EditorToolbar() {
           <AlignJustify className="h-4 w-4" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <Separator orientation="vertical" className="h-6 mx-1 bg-[#171717]" />
+      <Separator orientation="vertical" className="h-6 mx-1 bg-border" />
 
       <ToggleGroup type="multiple" className="justify-start">
         <ToggleGroupItem
@@ -177,7 +177,7 @@ export function EditorToolbar() {
           <Quote className="h-4 w-4" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <Separator orientation="vertical" className="h-6 mx-1 bg-[#171717]" />
+      <Separator orientation="vertical" className="h-6 mx-1 bg-border" />
 
       <div className="flex items-center gap-1">
         <Button
@@ -234,7 +234,7 @@ export function EditorToolbar() {
           <Youtube className="h-4 w-4" />
         </Button>
       </div>
-      <Separator orientation="vertical" className="h-6 mx-1 bg-[#171717]" />
+      <Separator orientation="vertical" className="h-6 mx-1 bg-border" />
 
       <div className="flex items-center gap-1">
         <Button
@@ -265,7 +265,7 @@ export function EditorToolbar() {
           <Lightbulb className="h-4 w-4" />
         </Button>
       </div>
-      <Separator orientation="vertical" className="h-6 mx-1 bg-[#171717]" />
+      <Separator orientation="vertical" className="h-6 mx-1 bg-border" />
 
       <div className="flex items-center gap-1">
         <Button
@@ -289,7 +289,7 @@ export function EditorToolbar() {
           Toggle
         </Button>
       </div>
-      <Separator orientation="vertical" className="h-6 mx-1 bg-[#171717]" />
+      <Separator orientation="vertical" className="h-6 mx-1 bg-border" />
 
       <div className="flex items-center gap-2 px-2">
         <input

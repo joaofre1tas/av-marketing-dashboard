@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useDrive } from './DriveContext'
 import { EditorTabs } from './EditorTabs'
 import { EditorToolbar } from './EditorToolbar'
@@ -44,7 +44,7 @@ function PostSection({ post }: { post: Post }) {
   }
 
   return (
-    <div className="border border-[#222] rounded-lg p-6 flex flex-col gap-6 bg-[#0a0a0a] relative group shadow-sm">
+    <div className="border border-border rounded-lg p-6 flex flex-col gap-6 bg-[#0a0a0a] relative group shadow-sm">
       <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-gradient-av rounded-l-lg opacity-80" />
       <div className="flex justify-between items-start pl-2">
         <div className="flex flex-col gap-2">
@@ -63,7 +63,7 @@ function PostSection({ post }: { post: Post }) {
         <div className="w-40 flex flex-col gap-1.5">
           <Label className="text-xs text-muted-foreground">Status do Post</Label>
           <Select value={post.status} onValueChange={handleStatusChange}>
-            <SelectTrigger className="h-9 bg-background border-[#222]">
+            <SelectTrigger className="h-9 bg-background border-border">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -81,7 +81,7 @@ function PostSection({ post }: { post: Post }) {
           Descrição Estruturada
         </h4>
         <div
-          className="prose prose-invert prose-sm bg-[#121212] p-5 rounded-md border border-[#222] max-w-none shadow-inner"
+          className="prose prose-invert prose-sm bg-[#121212] p-5 rounded-md border border-border max-w-none shadow-inner"
           dangerouslySetInnerHTML={{ __html: post.description }}
         />
       </div>
@@ -90,12 +90,12 @@ function PostSection({ post }: { post: Post }) {
         <h4 className="text-sm font-semibold mb-2 text-foreground/80 uppercase tracking-wider text-[11px]">
           Legenda do Post
         </h4>
-        <div className="bg-[#121212] p-5 rounded-md border border-[#222] text-sm whitespace-pre-wrap text-muted-foreground shadow-inner">
+        <div className="bg-[#121212] p-5 rounded-md border border-border text-sm whitespace-pre-wrap text-muted-foreground shadow-inner">
           {post.caption}
         </div>
       </div>
 
-      <div className="border-t border-[#222] pt-6 mt-2 pl-2">
+      <div className="border-t border-border pt-6 mt-2 pl-2">
         <h4 className="text-sm font-semibold mb-4 flex items-center gap-2 text-foreground/80">
           <MessageSquare className="w-4 h-4 text-primary" /> Discussão
         </h4>
@@ -107,7 +107,7 @@ function PostSection({ post }: { post: Post }) {
                   {c.author[0]}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex flex-col bg-[#121212] p-3.5 rounded-md border border-[#222] flex-1 shadow-sm">
+              <div className="flex flex-col bg-[#121212] p-3.5 rounded-md border border-border flex-1 shadow-sm">
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="text-xs font-semibold text-foreground/90">{c.author}</span>
                   <span className="text-[10px] text-muted-foreground">
@@ -129,7 +129,7 @@ function PostSection({ post }: { post: Post }) {
             placeholder="Adicione um comentário..."
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
-            className="h-9 text-sm bg-[#121212] border-[#222]"
+            className="h-9 text-sm bg-[#121212] border-border"
             onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
           />
           <Button
@@ -151,12 +151,6 @@ export function DocumentEditor() {
 
   const [showHistory, setShowHistory] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [bounds, setBounds] = useState<{
-    top: number
-    left: number
-    right: number
-    bottom: number
-  } | null>(null)
 
   const editorRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
@@ -165,39 +159,6 @@ export function DocumentEditor() {
   const docPosts = posts
     .filter((p) => p.documentId === activeDocumentId)
     .sort((a, b) => new Date(a.postDate).getTime() - new Date(b.postDate).getTime())
-
-  useLayoutEffect(() => {
-    if (!activeDocumentId) return
-
-    const mainEl = document.querySelector('main')
-    if (!mainEl) {
-      setBounds({ top: 64, left: 256, right: 0, bottom: 0 })
-      return
-    }
-
-    const originalOverflow = mainEl.style.overflow
-
-    const updateBounds = () => {
-      const rect = mainEl.getBoundingClientRect()
-      setBounds({
-        top: rect.top,
-        left: rect.left,
-        right: document.documentElement.clientWidth - rect.right,
-        bottom: document.documentElement.clientHeight - rect.bottom,
-      })
-    }
-
-    updateBounds()
-    mainEl.style.overflow = 'hidden'
-
-    const observer = new ResizeObserver(updateBounds)
-    observer.observe(mainEl)
-
-    return () => {
-      observer.disconnect()
-      mainEl.style.overflow = originalOverflow
-    }
-  }, [activeDocumentId])
 
   useEffect(() => {
     if (editorRef.current && activeDoc) {
@@ -229,70 +190,64 @@ export function DocumentEditor() {
     toast({ title: 'Exportando DOCX', description: 'O download começará em breve.' })
   }
 
-  if (!activeDocumentId || !activeDoc || !bounds) return null
+  if (!activeDocumentId || !activeDoc) return null
 
   return (
-    <div
-      className="fixed z-50 bg-[#121212] flex flex-col font-sans animate-fade-in text-foreground overflow-hidden"
-      style={{
-        top: `${bounds.top}px`,
-        left: `${bounds.left}px`,
-        right: `${bounds.right}px`,
-        bottom: `${bounds.bottom}px`,
-      }}
-    >
+    <div className="flex flex-col font-sans animate-fade-in text-foreground bg-[#121212] border border-border rounded-lg shadow-sm w-full relative z-0">
       <EditorTabs />
 
-      <div className="flex items-center justify-between px-4 py-2 border-b border-[#171717] bg-background">
-        <div className="flex items-center gap-4 flex-1">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="#" onClick={(e) => e.preventDefault()}>
-                  Drive
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>
-                  <Input
-                    value={activeDoc.name}
-                    onChange={(e) => renameItem(activeDoc.id, e.target.value)}
-                    className="h-7 w-64 bg-transparent border-transparent hover:border-[#171717] focus:border-primary focus-visible:ring-0 px-1 font-medium"
-                  />
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          {isSaving ? (
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <Save className="w-3 h-3 animate-pulse" /> Salvando...
-            </span>
-          ) : (
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <Check className="w-3 h-3" /> Salvo
-            </span>
-          )}
+      <div className="sticky top-0 z-10 flex flex-col bg-background rounded-t-lg shadow-sm border-b border-border">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+          <div className="flex items-center gap-4 flex-1">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="#" onClick={(e) => e.preventDefault()}>
+                    Drive
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>
+                    <Input
+                      value={activeDoc.name}
+                      onChange={(e) => renameItem(activeDoc.id, e.target.value)}
+                      className="h-7 w-64 bg-transparent border-transparent hover:border-border focus:border-primary focus-visible:ring-0 px-1 font-medium"
+                    />
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            {isSaving ? (
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <Save className="w-3 h-3 animate-pulse" /> Salvando...
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <Check className="w-3 h-3" /> Salvo
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowHistory(!showHistory)}>
+              <History className="w-4 h-4 mr-2" /> Histórico
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPDF}>
+              <Download className="w-4 h-4 mr-2" /> PDF
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportDocx}>
+              <Download className="w-4 h-4 mr-2" /> DOCX
+            </Button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowHistory(!showHistory)}>
-            <History className="w-4 h-4 mr-2" /> Histórico
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleExportPDF}>
-            <Download className="w-4 h-4 mr-2" /> PDF
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleExportDocx}>
-            <Download className="w-4 h-4 mr-2" /> DOCX
-          </Button>
-        </div>
+        <EditorToolbar />
       </div>
 
-      <EditorToolbar />
-
-      <div className="flex-1 overflow-hidden flex relative bg-[#0a0a0a]">
-        <div className="flex-1 overflow-auto p-8 flex justify-center pb-32">
-          <div className="w-full max-w-[850px] min-h-[1056px] bg-[#121212] border border-[#171717] shadow-lg p-12 outline-none flex flex-col gap-10 rounded-sm">
+      <div className="flex relative bg-[#0a0a0a] min-h-[800px] rounded-b-lg">
+        <div className="flex-1 p-8 flex justify-center pb-32">
+          <div className="w-full max-w-[850px] min-h-[1056px] bg-[#121212] border border-border shadow-lg p-12 outline-none flex flex-col gap-10 rounded-sm">
             <div
               ref={editorRef}
               contentEditable
@@ -302,7 +257,7 @@ export function DocumentEditor() {
             />
 
             {docPosts.length > 0 && (
-              <div className="flex flex-col gap-8 pt-8 border-t border-[#222]">
+              <div className="flex flex-col gap-8 pt-8 border-t border-border">
                 <h3 className="text-lg font-semibold tracking-tight text-muted-foreground flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                   Postagens Vinculadas ({docPosts.length})
