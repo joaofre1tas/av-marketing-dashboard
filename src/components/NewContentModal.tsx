@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { CalendarIcon } from 'lucide-react'
+import { CalendarIcon, ChevronLeft, Folder as FolderIcon } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,87 @@ import useMainStore, { PostStatus, PostFormat } from '@/stores/main'
 import { useToast } from '@/hooks/use-toast'
 import { RichTextEditor } from './RichTextEditor'
 
+function FolderBrowser({
+  clientId,
+  driveItems,
+  selectedFolderId,
+  onSelectFolder,
+  currentNavFolderId,
+  setCurrentNavFolderId,
+}: {
+  clientId: string
+  driveItems: any[]
+  selectedFolderId: string | null
+  onSelectFolder: (id: string | null) => void
+  currentNavFolderId: string | null
+  setCurrentNavFolderId: (id: string | null) => void
+}) {
+  const folders = driveItems.filter((i) => i.type === 'folder' && i.clientId === clientId)
+
+  const currentFolders = folders.filter(
+    (f) => f.parentId === currentNavFolderId || (!currentNavFolderId && !f.parentId),
+  )
+
+  const handleNavigateUp = () => {
+    if (!currentNavFolderId) return
+    const current = folders.find((f) => f.id === currentNavFolderId)
+    setCurrentNavFolderId(current?.parentId || null)
+  }
+
+  return (
+    <div className="border border-border rounded-md overflow-hidden bg-background">
+      <div className="flex items-center gap-2 p-2 bg-muted/50 border-b border-border">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6"
+          disabled={!currentNavFolderId}
+          onClick={handleNavigateUp}
+          type="button"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <span className="text-xs font-medium">
+          {currentNavFolderId
+            ? folders.find((f) => f.id === currentNavFolderId)?.name || 'Pasta'
+            : 'Raiz do Drive'}
+        </span>
+      </div>
+      <div className="p-2 flex flex-col gap-1 max-h-40 overflow-y-auto">
+        {currentFolders.length === 0 && (
+          <div className="text-xs text-muted-foreground p-2 text-center">Nenhuma subpasta</div>
+        )}
+        {currentFolders.map((folder) => (
+          <div
+            key={folder.id}
+            className="flex items-center justify-between p-1 hover:bg-muted/50 rounded group"
+          >
+            <div
+              className="flex items-center gap-2 cursor-pointer flex-1"
+              onClick={() => setCurrentNavFolderId(folder.id)}
+            >
+              <FolderIcon className="h-4 w-4 text-blue-400 fill-blue-400/20" />
+              <span className="text-xs">{folder.name}</span>
+            </div>
+            <Button
+              variant={selectedFolderId === folder.id ? 'default' : 'outline'}
+              size="sm"
+              className={cn(
+                'h-6 text-[10px] px-2 opacity-0 group-hover:opacity-100 transition-opacity',
+                selectedFolderId === folder.id && 'opacity-100',
+              )}
+              onClick={() => onSelectFolder(selectedFolderId === folder.id ? null : folder.id)}
+              type="button"
+            >
+              {selectedFolderId === folder.id ? 'Selecionada' : 'Selecionar'}
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function NewContentModal() {
   const {
     isNewContentModalOpen,
@@ -41,12 +122,16 @@ export default function NewContentModal() {
   const [clientId, setClientId] = useState('')
   const [documentId, setDocumentId] = useState('')
   const [newDocName, setNewDocName] = useState('')
-  const [postFormat, setPostFormat] = useState<PostFormat>('Reels')
+  const [platform, setPlatform] = useState('')
+  const [postFormat, setPostFormat] = useState<PostFormat | ''>('')
   const [postDate, setPostDate] = useState<Date>()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [status, setStatus] = useState<PostStatus>('Decupagem')
   const [caption, setCaption] = useState('')
+
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null)
+  const [currentNavFolderId, setCurrentNavFolderId] = useState<string | null>(null)
 
   const handleOpenChange = (open: boolean) => {
     setNewContentModalOpen(open)
@@ -54,12 +139,15 @@ export default function NewContentModal() {
       setClientId('')
       setDocumentId('')
       setNewDocName('')
-      setPostFormat('Reels')
+      setPlatform('')
+      setPostFormat('')
       setPostDate(undefined)
       setTitle('')
       setDescription('')
       setStatus('Decupagem')
       setCaption('')
+      setSelectedFolderId(null)
+      setCurrentNavFolderId(null)
     }
   }
 
@@ -71,6 +159,7 @@ export default function NewContentModal() {
     if (
       !clientId ||
       !documentId ||
+      !platform ||
       !postFormat ||
       !postDate ||
       !title ||
@@ -95,7 +184,7 @@ export default function NewContentModal() {
       finalDocId = 'doc-' + Date.now()
       addDriveItem({
         id: finalDocId,
-        parentId: null,
+        parentId: selectedFolderId || null,
         name: newDocName,
         type: 'document',
         lastModified: new Date().toISOString().split('T')[0],
@@ -109,16 +198,17 @@ export default function NewContentModal() {
       id: 'post-' + Date.now(),
       clientId,
       documentId: finalDocId,
-      format: postFormat,
+      format: postFormat as PostFormat,
+      socialMedia: platform,
       postDate: postDate.toISOString(),
       title,
       description,
       status,
       caption,
       comments: [],
-    })
+    } as any)
 
-    toast({ title: 'Conteúdo Criado', description: 'O post foi salvo no documento com sucesso.' })
+    toast({ title: 'Conteúdo Criado', description: 'O post foi salvo com sucesso.' })
     handleOpenChange(false)
   }
 
@@ -171,37 +261,81 @@ export default function NewContentModal() {
           </div>
 
           {documentId === 'new' && (
-            <div className="flex flex-col gap-2 p-4 bg-muted/10 border border-border/50 rounded-lg animate-fade-in-down">
-              <Label>Nome do Novo Documento</Label>
-              <Input
-                value={newDocName}
-                onChange={(e) => setNewDocName(e.target.value)}
-                placeholder="Calendário Editorial | Nome do Cliente | AAAA-MM"
-              />
-              <p className="text-[11px] text-muted-foreground">
-                O nome do documento deve seguir o formato: Calendário Editorial | Nome do Cliente |
-                AAAA-MM
-              </p>
+            <div className="flex flex-col gap-4 p-4 bg-muted/10 border border-border/50 rounded-lg animate-fade-in-down">
+              <div className="flex flex-col gap-2">
+                <Label>Nome do Novo Documento</Label>
+                <Input
+                  value={newDocName}
+                  onChange={(e) => setNewDocName(e.target.value)}
+                  placeholder="Calendário Editorial | Nome do Cliente | AAAA-MM"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label>Pasta de Destino (Opcional)</Label>
+                <FolderBrowser
+                  clientId={clientId}
+                  driveItems={driveItems}
+                  selectedFolderId={selectedFolderId}
+                  onSelectFolder={setSelectedFolderId}
+                  currentNavFolderId={currentNavFolderId}
+                  setCurrentNavFolderId={setCurrentNavFolderId}
+                />
+              </div>
             </div>
           )}
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="flex flex-col gap-2">
-              <Label>Formato</Label>
-              <Select value={postFormat} onValueChange={(v) => setPostFormat(v as PostFormat)}>
+              <Label>Rede Social</Label>
+              <Select
+                value={platform}
+                onValueChange={(v) => {
+                  setPlatform(v)
+                  setPostFormat('')
+                }}
+              >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Reels">Reels</SelectItem>
-                  <SelectItem value="Carrossel">Carrossel</SelectItem>
-                  <SelectItem value="Estático">Estático</SelectItem>
+                  <SelectItem value="Instagram">Instagram</SelectItem>
+                  <SelectItem value="YouTube">YouTube</SelectItem>
+                  <SelectItem value="LinkedIn">LinkedIn</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label>Data de Postagem</Label>
+              <Label>Formato</Label>
+              <Select
+                value={postFormat}
+                onValueChange={(v) => setPostFormat(v as PostFormat)}
+                disabled={!platform}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  {platform === 'Instagram' && (
+                    <>
+                      <SelectItem value="Reels">Reels</SelectItem>
+                      <SelectItem value="Estático">Estático</SelectItem>
+                      <SelectItem value="Carrossel">Carrossel</SelectItem>
+                    </>
+                  )}
+                  {platform === 'YouTube' && <SelectItem value="Vídeo">Vídeo</SelectItem>}
+                  {platform === 'LinkedIn' && (
+                    <>
+                      <SelectItem value="Artigo">Artigo</SelectItem>
+                      <SelectItem value="Post">Post</SelectItem>
+                    </>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label>Data</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -212,7 +346,7 @@ export default function NewContentModal() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {postDate ? format(postDate, 'dd/MM/yyyy') : <span>Selecione uma data</span>}
+                    {postDate ? format(postDate, 'dd/MM/yyyy') : <span>Selecione</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -245,12 +379,8 @@ export default function NewContentModal() {
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Reels | Hook da Capa"
+              placeholder="Ex: Reels | Hook da Capa"
             />
-            <p className="text-[11px] text-muted-foreground">
-              O título deve seguir o formato: Reels | Hook da Capa · Carrossel | Headline do Post ·
-              Estático | Headline do Post
-            </p>
           </div>
 
           <div className="flex flex-col gap-2">
