@@ -99,8 +99,11 @@ export default function Layout() {
             <SidebarMenuItem>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton size="lg" className="hover:bg-muted/50">
-                    <Avatar className="h-8 w-8 rounded-lg">
+                  <SidebarMenuButton
+                    size="lg"
+                    className="hover:bg-muted/50 border border-transparent hover:border-[#171717] data-[state=open]:border-[#171717]"
+                  >
+                    <Avatar className="h-8 w-8 rounded-lg border border-[#171717]">
                       <AvatarImage src={logoMonogram} alt="User" className="object-cover" />
                       <AvatarFallback>AV</AvatarFallback>
                     </Avatar>
@@ -110,11 +113,11 @@ export default function Layout() {
                     </div>
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-56 border-[#171717]">
                   <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" /> Configurações
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator className="bg-[#171717]" />
                   <DropdownMenuItem className="text-destructive focus:text-destructive">
                     <LogOut className="mr-2 h-4 w-4" /> Sair
                   </DropdownMenuItem>
@@ -126,14 +129,14 @@ export default function Layout() {
       </Sidebar>
 
       <SidebarInset className="relative flex flex-col h-svh overflow-hidden bg-background">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border px-4 gap-4 bg-background/95 backdrop-blur-md z-20">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b border-[#171717] px-4 gap-4 bg-background/95 backdrop-blur-md z-20">
           <div className="flex flex-1 items-center gap-4">
             <SidebarTrigger />
             <div className="relative max-w-md w-full hidden sm:block">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar conteúdo, métricas..."
-                className="pl-9 bg-card border-border"
+                className="pl-9 bg-card border-[#171717]"
               />
             </div>
           </div>

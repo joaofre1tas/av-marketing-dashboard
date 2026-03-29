@@ -18,14 +18,14 @@ export default function ClientDetails() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center gap-4 border-b border-border pb-6">
+      <div className="flex items-center gap-4 border-b border-[#171717] pb-6">
         <Link
           to="/clientes"
-          className="p-2 -ml-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+          className="p-2 -ml-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors border border-transparent hover:border-[#171717]"
         >
           <ChevronLeft className="h-5 w-5" />
         </Link>
-        <Avatar className="h-10 w-10 border border-border bg-background">
+        <Avatar className="h-10 w-10 border border-[#171717] bg-background">
           <AvatarImage src={logoUrl} className="object-cover p-1.5" />
           <AvatarFallback>CL</AvatarFallback>
         </Avatar>
@@ -33,7 +33,7 @@ export default function ClientDetails() {
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="bg-card border border-border h-12 w-full justify-start p-1 mb-6 rounded-lg">
+        <TabsList className="bg-card border border-[#171717] h-12 w-full justify-start p-1 mb-6 rounded-lg">
           <TabsTrigger
             value="overview"
             className="data-[state=active]:bg-background data-[state=active]:text-foreground rounded-md px-6"
