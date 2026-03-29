@@ -196,7 +196,7 @@ export function DocumentEditor() {
     <div className="flex flex-col font-sans animate-fade-in text-foreground bg-[#121212] border border-border rounded-lg shadow-sm w-full relative z-0">
       <EditorTabs />
 
-      <div className="sticky top-0 z-10 flex flex-col bg-background rounded-t-lg shadow-sm border-b border-border">
+      <div className="flex flex-col bg-background rounded-t-lg shadow-sm border-b border-border">
         <div className="flex items-center justify-between px-4 py-2 border-b border-border">
           <div className="flex items-center gap-4 flex-1">
             <Breadcrumb>
