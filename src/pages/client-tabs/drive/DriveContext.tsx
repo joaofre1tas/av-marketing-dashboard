@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
 import { DriveItem } from './types'
 import useMainStore from '@/stores/main'
-import { DocumentEditor } from './DocumentEditor'
 
 interface DriveContextType {
   items: DriveItem[]
@@ -145,7 +144,6 @@ export function DriveProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-      <DocumentEditor />
     </DriveContext.Provider>
   )
 }

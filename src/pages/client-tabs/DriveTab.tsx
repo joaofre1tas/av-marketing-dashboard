@@ -3,9 +3,10 @@ import { DriveToolbar } from './drive/DriveToolbar'
 import { DriveGrid } from './drive/DriveGrid'
 import { DriveList } from './drive/DriveList'
 import { Folder, Pin } from 'lucide-react'
+import { DocumentEditor } from './drive/DocumentEditor'
 
 function DriveContent() {
-  const { items, currentFolderId, viewMode, searchQuery } = useDrive()
+  const { items, currentFolderId, viewMode, searchQuery, activeDocumentId } = useDrive()
 
   let currentItems = items.filter((item) => item.parentId === currentFolderId)
 
@@ -16,6 +17,10 @@ function DriveContent() {
   }
 
   const pinnedItems = items.filter((item) => item.isPinned && !searchQuery)
+
+  if (activeDocumentId) {
+    return <DocumentEditor />
+  }
 
   return (
     <div className="flex flex-col h-full animate-fade-in pb-8">

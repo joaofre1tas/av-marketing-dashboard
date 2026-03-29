@@ -146,7 +146,7 @@ function PostSection({ post }: { post: Post }) {
 }
 
 export function DocumentEditor() {
-  const { activeDocumentId, renameItem } = useDrive()
+  const { activeDocumentId, renameItem, setActiveDocumentId } = useDrive()
   const { driveItems, posts, updateDriveItem } = useMainStore()
 
   const [showHistory, setShowHistory] = useState(false)
@@ -202,7 +202,13 @@ export function DocumentEditor() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="#" onClick={(e) => e.preventDefault()}>
+                  <BreadcrumbLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setActiveDocumentId(null)
+                    }}
+                  >
                     Drive
                   </BreadcrumbLink>
                 </BreadcrumbItem>
