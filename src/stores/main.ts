@@ -9,7 +9,7 @@ export type PostStatus =
   | 'Produção'
   | 'Agendamento'
   | 'Postado'
-export type PostFormat = 'Reels' | 'Carrossel' | 'Estático'
+export type PostFormat = 'Reels' | 'Carrossel' | 'Estático' | 'Vídeo' | 'Artigo' | 'Post'
 
 export interface PostComment {
   id: string
@@ -23,6 +23,7 @@ export interface Post {
   clientId: string
   documentId: string
   format: PostFormat
+  socialMedia?: string
   postDate: string
   title: string
   description: string
@@ -31,9 +32,25 @@ export interface Post {
   comments: PostComment[]
 }
 
+export interface SocialMediaLink {
+  platform: string
+  url: string
+}
+
+export interface BrandGuidelines {
+  colors?: string
+  fonts?: string
+  logo?: string
+  voiceAndTone?: string
+}
+
 export interface Client {
   id: string
   name: string
+  skillFile?: string
+  coverImage?: string
+  socials: SocialMediaLink[]
+  guidelines?: BrandGuidelines
 }
 
 export interface GlobalState {
@@ -45,9 +62,51 @@ export interface GlobalState {
 
 const initialState: GlobalState = {
   clients: [
-    { id: '1', name: 'Agência Y' },
-    { id: '2', name: 'Tech Start' },
-    { id: '3', name: 'Zeta Bank' },
+    {
+      id: '1',
+      name: 'TechCorp Solutions',
+      coverImage: 'https://img.usecurling.com/p/400/200?q=technology&color=blue',
+      guidelines: {
+        logo: 'https://img.usecurling.com/i?q=tech&shape=fill&color=blue',
+        colors: '#0A2540, #00D4FF',
+      },
+      socials: [
+        { platform: 'Instagram', url: 'https://instagram.com/techcorp' },
+        { platform: 'LinkedIn', url: 'https://linkedin.com/company/techcorp' },
+        { platform: 'YouTube', url: 'https://youtube.com/@techcorp' },
+      ],
+    },
+    {
+      id: '2',
+      name: 'Sabor & Arte',
+      coverImage: 'https://img.usecurling.com/p/400/200?q=restaurant&color=orange',
+      guidelines: {
+        logo: 'https://img.usecurling.com/i?q=food&shape=fill&color=orange',
+        colors: '#FF5C00, #171717',
+      },
+      socials: [
+        { platform: 'Instagram', url: 'https://instagram.com/saborearte' },
+        { platform: 'YouTube', url: 'https://youtube.com/@saborearte' },
+      ],
+    },
+    {
+      id: '3',
+      name: 'Financeira Atual',
+      coverImage: 'https://img.usecurling.com/p/400/200?q=finance&color=green',
+      guidelines: {
+        logo: 'https://img.usecurling.com/i?q=finance&shape=fill&color=green',
+      },
+      socials: [{ platform: 'LinkedIn', url: 'https://linkedin.com/company/financeira' }],
+    },
+    {
+      id: '4',
+      name: 'Studio Design',
+      coverImage: 'https://img.usecurling.com/p/400/200?q=design&color=purple',
+      guidelines: {
+        logo: 'https://img.usecurling.com/i?q=design&shape=fill&color=violet',
+      },
+      socials: [{ platform: 'Instagram', url: 'https://instagram.com/studiodesign' }],
+    },
   ],
   posts: [
     {
@@ -55,6 +114,7 @@ const initialState: GlobalState = {
       clientId: '1',
       documentId: '3',
       format: 'Estático',
+      socialMedia: 'Instagram',
       postDate: new Date().toISOString(),
       title: 'Estático | O que é Marketing de Autoridade?',
       description:
@@ -118,6 +178,17 @@ export default function useMainStore() {
     ...snapshot,
     setNewContentModalOpen: (open: boolean) => {
       state = { ...state, isNewContentModalOpen: open }
+      notify()
+    },
+    addClient: (client: Client) => {
+      state = { ...state, clients: [...state.clients, client] }
+      notify()
+    },
+    updateClient: (id: string, updates: Partial<Client>) => {
+      state = {
+        ...state,
+        clients: state.clients.map((c) => (c.id === id ? { ...c, ...updates } : c)),
+      }
       notify()
     },
     addPost: (post: Post) => {
