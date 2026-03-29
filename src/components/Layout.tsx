@@ -8,6 +8,7 @@ import {
   Plus,
   Settings,
   LogOut,
+  Users,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
@@ -39,6 +40,7 @@ import logoMonogram from '@/assets/logo-monogram.svg'
 
 const navLinks = [
   { path: '/analise', label: 'Análise', icon: LayoutDashboard },
+  { path: '/clientes', label: 'Clientes', icon: Users },
   { path: '/conteudo', label: 'Gerenciador de Conteúdo', icon: FileText },
   { path: '/calendario', label: 'Calendário', icon: CalendarDays },
   { path: '/monitoramento', label: 'Monitoramento', icon: Activity },

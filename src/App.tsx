@@ -7,6 +7,8 @@ import Dashboard from './pages/Dashboard'
 import ContentManager from './pages/ContentManager'
 import CalendarPage from './pages/CalendarPage'
 import Competitors from './pages/Competitors'
+import Clients from './pages/Clients'
+import ClientDetails from './pages/ClientDetails'
 import NotFound from './pages/NotFound'
 
 const App = () => (
@@ -21,6 +23,8 @@ const App = () => (
           <Route path="/conteudo" element={<ContentManager />} />
           <Route path="/calendario" element={<CalendarPage />} />
           <Route path="/monitoramento" element={<Competitors />} />
+          <Route path="/clientes" element={<Clients />} />
+          <Route path="/clientes/:id" element={<ClientDetails />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
