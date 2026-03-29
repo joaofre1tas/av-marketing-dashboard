@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { useDrive } from './DriveContext'
 import { EditorTabs } from './EditorTabs'
 import { EditorToolbar } from './EditorToolbar'
@@ -20,10 +20,49 @@ export function DocumentEditor() {
   const { activeDocumentId, items, renameItem, setItems } = useDrive()
   const [showHistory, setShowHistory] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [bounds, setBounds] = useState<{
+    top: number
+    left: number
+    right: number
+    bottom: number
+  } | null>(null)
   const editorRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
 
   const activeDoc = items.find((i) => i.id === activeDocumentId)
+
+  useLayoutEffect(() => {
+    if (!activeDocumentId) return
+
+    const mainEl = document.querySelector('main')
+    if (!mainEl) {
+      setBounds({ top: 64, left: 256, right: 0, bottom: 0 })
+      return
+    }
+
+    const originalOverflow = mainEl.style.overflow
+
+    const updateBounds = () => {
+      const rect = mainEl.getBoundingClientRect()
+      setBounds({
+        top: rect.top,
+        left: rect.left,
+        right: document.documentElement.clientWidth - rect.right,
+        bottom: document.documentElement.clientHeight - rect.bottom,
+      })
+    }
+
+    updateBounds()
+    mainEl.style.overflow = 'hidden'
+
+    const observer = new ResizeObserver(updateBounds)
+    observer.observe(mainEl)
+
+    return () => {
+      observer.disconnect()
+      mainEl.style.overflow = originalOverflow
+    }
+  }, [activeDocumentId])
 
   useEffect(() => {
     if (editorRef.current && activeDoc) {
@@ -55,10 +94,18 @@ export function DocumentEditor() {
     toast({ title: 'Exportando DOCX', description: 'O download começará em breve.' })
   }
 
-  if (!activeDocumentId || !activeDoc) return null
+  if (!activeDocumentId || !activeDoc || !bounds) return null
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#121212] flex flex-col font-sans animate-fade-in text-foreground">
+    <div
+      className="fixed z-50 bg-[#121212] flex flex-col font-sans animate-fade-in text-foreground overflow-hidden"
+      style={{
+        top: `${bounds.top}px`,
+        left: `${bounds.left}px`,
+        right: `${bounds.right}px`,
+        bottom: `${bounds.bottom}px`,
+      }}
+    >
       <EditorTabs />
 
       <div className="flex items-center justify-between px-4 py-2 border-b border-[#171717] bg-background">
