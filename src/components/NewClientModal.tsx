@@ -21,7 +21,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Plus, Trash2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import useMainStore, { SocialMediaLink } from '@/stores/main'
-import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface NewClientModalProps {
   open: boolean
@@ -115,7 +114,7 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 -mx-6 px-6 py-2">
+        <div className="flex-1 overflow-y-auto -mx-6 px-6 py-2">
           <div className="space-y-8 pb-4">
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
@@ -264,7 +263,7 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
               </div>
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
         <DialogFooter className="shrink-0 pt-4 border-t border-[#171717]">
           <Button
