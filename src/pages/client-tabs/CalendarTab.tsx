@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { Calendar as CalendarIcon, List, LayoutGrid } from 'lucide-react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
+import useMainStore from '@/stores/main'
+
 export default function CalendarTab() {
+  const { posts } = useMainStore()
   const [view, setView] = useState('month')
 
   return (
@@ -66,23 +69,26 @@ export default function CalendarTab() {
         )}
 
         {view === 'list' && (
-          <div className="flex-1 p-4 space-y-2">
-            {[1, 2, 3].map((item) => (
+          <div className="flex-1 p-4 space-y-2 overflow-auto">
+            {posts.map((item) => (
               <div
-                key={item}
+                key={item.id}
                 className="flex items-center gap-4 p-3 rounded-md border border-border hover:bg-muted/50 transition-colors"
               >
                 <div className="h-10 w-10 rounded bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-                  {item * 12}
+                  {new Date(item.postDate).getDate()}
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-foreground">Publicação Agendada</h4>
+                  <h4 className="text-sm font-medium text-foreground">{item.title}</h4>
                   <p className="text-xs text-muted-foreground">
-                    Instagram • Draft pronto para revisão
+                    {item.format} • Status: {item.status}
                   </p>
                 </div>
               </div>
             ))}
+            {posts.length === 0 && (
+              <p className="text-sm text-muted-foreground p-4">Nenhuma publicação agendada.</p>
+            )}
           </div>
         )}
       </div>

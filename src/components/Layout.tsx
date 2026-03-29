@@ -37,6 +37,8 @@ import {
 
 import logoHorizontal from '@/assets/logo-horizontal.svg'
 import logoMonogram from '@/assets/logo-monogram.svg'
+import useMainStore from '@/stores/main'
+import NewContentModal from '@/components/NewContentModal'
 
 const navLinks = [
   { path: '/analise', label: 'Análise', icon: LayoutDashboard },
@@ -49,12 +51,10 @@ const navLinks = [
 export default function Layout() {
   const location = useLocation()
   const { toast } = useToast()
+  const { setNewContentModalOpen } = useMainStore()
 
   const handleNewContent = () => {
-    toast({
-      title: 'Novo Conteúdo Criado',
-      description: 'Um rascunho em branco foi gerado e está pronto para edição.',
-    })
+    setNewContentModalOpen(true)
   }
 
   return (
@@ -147,6 +147,7 @@ export default function Layout() {
           <Outlet />
         </main>
       </SidebarInset>
+      <NewContentModal />
     </SidebarProvider>
   )
 }

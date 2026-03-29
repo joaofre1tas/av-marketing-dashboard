@@ -10,4 +10,5 @@ export interface DriveItem {
   size?: string
   isPinned?: boolean
   content?: string
+  clientId?: string
 }

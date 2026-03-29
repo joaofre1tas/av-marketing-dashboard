@@ -13,11 +13,142 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { History, Download, Check, Save } from 'lucide-react'
+import { History, Download, Check, Save, MessageSquare } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import useMainStore, { Post, PostStatus } from '@/stores/main'
+
+function PostSection({ post }: { post: Post }) {
+  const { updatePostStatus, addComment } = useMainStore()
+  const [commentText, setCommentText] = useState('')
+
+  const handleStatusChange = (val: string) => updatePostStatus(post.id, val as PostStatus)
+  const handleAddComment = () => {
+    if (!commentText.trim()) return
+    addComment(post.id, {
+      id: Date.now().toString(),
+      author: 'Pedro Valor',
+      timestamp: new Date().toISOString(),
+      text: commentText,
+    })
+    setCommentText('')
+  }
+
+  return (
+    <div className="border border-[#222] rounded-lg p-6 flex flex-col gap-6 bg-[#0a0a0a] relative group shadow-sm">
+      <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-gradient-av rounded-l-lg opacity-80" />
+      <div className="flex justify-between items-start pl-2">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+              {post.format}
+            </Badge>
+            <span className="text-xs text-muted-foreground">
+              {new Date(post.postDate).toLocaleDateString('pt-BR')}
+            </span>
+          </div>
+          <h2 className="text-xl font-bold font-sans tracking-tight text-foreground">
+            {post.title}
+          </h2>
+        </div>
+        <div className="w-40 flex flex-col gap-1.5">
+          <Label className="text-xs text-muted-foreground">Status do Post</Label>
+          <Select value={post.status} onValueChange={handleStatusChange}>
+            <SelectTrigger className="h-9 bg-background border-[#222]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Redação">Redação</SelectItem>
+              <SelectItem value="Revisão">Revisão</SelectItem>
+              <SelectItem value="Alteração">Alteração</SelectItem>
+              <SelectItem value="Produção">Produção</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="pl-2">
+        <h4 className="text-sm font-semibold mb-2 text-foreground/80 uppercase tracking-wider text-[11px]">
+          Descrição Estruturada
+        </h4>
+        <div
+          className="prose prose-invert prose-sm bg-[#121212] p-5 rounded-md border border-[#222] max-w-none shadow-inner"
+          dangerouslySetInnerHTML={{ __html: post.description }}
+        />
+      </div>
+
+      <div className="pl-2">
+        <h4 className="text-sm font-semibold mb-2 text-foreground/80 uppercase tracking-wider text-[11px]">
+          Legenda do Post
+        </h4>
+        <div className="bg-[#121212] p-5 rounded-md border border-[#222] text-sm whitespace-pre-wrap text-muted-foreground shadow-inner">
+          {post.caption}
+        </div>
+      </div>
+
+      <div className="border-t border-[#222] pt-6 mt-2 pl-2">
+        <h4 className="text-sm font-semibold mb-4 flex items-center gap-2 text-foreground/80">
+          <MessageSquare className="w-4 h-4 text-primary" /> Discussão
+        </h4>
+        <div className="flex flex-col gap-4 mb-5">
+          {post.comments.map((c) => (
+            <div key={c.id} className="flex gap-3">
+              <Avatar className="w-8 h-8 rounded-md">
+                <AvatarFallback className="rounded-md bg-primary/20 text-primary text-xs">
+                  {c.author[0]}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col bg-[#121212] p-3.5 rounded-md border border-[#222] flex-1 shadow-sm">
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className="text-xs font-semibold text-foreground/90">{c.author}</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {new Date(c.timestamp).toLocaleString('pt-BR')}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">{c.text}</p>
+              </div>
+            </div>
+          ))}
+          {post.comments.length === 0 && (
+            <p className="text-xs text-muted-foreground italic">
+              Nenhum comentário ainda. Inicie a discussão abaixo.
+            </p>
+          )}
+        </div>
+        <div className="flex gap-3">
+          <Input
+            placeholder="Adicione um comentário..."
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            className="h-9 text-sm bg-[#121212] border-[#222]"
+            onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+          />
+          <Button
+            size="sm"
+            onClick={handleAddComment}
+            className="bg-primary/20 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+          >
+            Enviar
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export function DocumentEditor() {
-  const { activeDocumentId, items, renameItem, setItems } = useDrive()
+  const { activeDocumentId, renameItem } = useDrive()
+  const { driveItems, posts, updateDriveItem } = useMainStore()
+
   const [showHistory, setShowHistory] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [bounds, setBounds] = useState<{
@@ -26,10 +157,14 @@ export function DocumentEditor() {
     right: number
     bottom: number
   } | null>(null)
+
   const editorRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
 
-  const activeDoc = items.find((i) => i.id === activeDocumentId)
+  const activeDoc = driveItems.find((i) => i.id === activeDocumentId)
+  const docPosts = posts
+    .filter((p) => p.documentId === activeDocumentId)
+    .sort((a, b) => new Date(a.postDate).getTime() - new Date(b.postDate).getTime())
 
   useLayoutEffect(() => {
     if (!activeDocumentId) return
@@ -70,16 +205,16 @@ export function DocumentEditor() {
         editorRef.current.innerHTML = activeDoc.content || '<p><br></p>'
       }
     }
-  }, [activeDocumentId])
+  }, [activeDocumentId, activeDoc])
 
   const handleInput = () => {
     setIsSaving(true)
     const content = editorRef.current?.innerHTML || ''
 
     const timeout = setTimeout(() => {
-      setItems((prev) =>
-        prev.map((item) => (item.id === activeDocumentId ? { ...item, content } : item)),
-      )
+      if (activeDoc) {
+        updateDriveItem(activeDoc.id, { content })
+      }
       setIsSaving(false)
     }, 1000)
 
@@ -157,13 +292,29 @@ export function DocumentEditor() {
 
       <div className="flex-1 overflow-hidden flex relative bg-[#0a0a0a]">
         <div className="flex-1 overflow-auto p-8 flex justify-center pb-32">
-          <div
-            ref={editorRef}
-            contentEditable
-            onInput={handleInput}
-            className="w-full max-w-[850px] min-h-[1056px] bg-[#121212] border border-[#171717] shadow-lg p-12 outline-none prose prose-invert max-w-none focus:ring-1 focus:ring-primary transition-shadow rounded-sm"
-            style={{ fontFamily: 'Figtree, sans-serif' }}
-          />
+          <div className="w-full max-w-[850px] min-h-[1056px] bg-[#121212] border border-[#171717] shadow-lg p-12 outline-none flex flex-col gap-10 rounded-sm">
+            <div
+              ref={editorRef}
+              contentEditable
+              onInput={handleInput}
+              className="prose prose-invert max-w-none focus:outline-none focus:ring-0"
+              style={{ fontFamily: 'Figtree, sans-serif' }}
+            />
+
+            {docPosts.length > 0 && (
+              <div className="flex flex-col gap-8 pt-8 border-t border-[#222]">
+                <h3 className="text-lg font-semibold tracking-tight text-muted-foreground flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                  Postagens Vinculadas ({docPosts.length})
+                </h3>
+                <div className="flex flex-col gap-12">
+                  {docPosts.map((post) => (
+                    <PostSection key={post.id} post={post} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         {showHistory && <VersionHistory onClose={() => setShowHistory(false)} />}
       </div>

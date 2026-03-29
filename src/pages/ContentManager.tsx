@@ -11,51 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Edit, Copy, Trash2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-
-const contents = [
-  {
-    id: 1,
-    title: 'O que é Marketing de Autoridade?',
-    channel: 'Blog',
-    status: 'Publicado',
-    owner: 'João Silva',
-    date: '24 Out, 2023',
-  },
-  {
-    id: 2,
-    title: 'Dicas para engajar no Instagram',
-    channel: 'Instagram',
-    status: 'Agendado',
-    owner: 'Maria Clara',
-    date: '28 Out, 2023',
-  },
-  {
-    id: 3,
-    title: 'Guia de Design System 2024',
-    channel: 'LinkedIn',
-    status: 'Rascunho',
-    owner: 'Pedro Valor',
-    date: '02 Nov, 2023',
-  },
-  {
-    id: 4,
-    title: 'Case de Sucesso: Agência Y',
-    channel: 'Blog',
-    status: 'Rascunho',
-    owner: 'João Silva',
-    date: '05 Nov, 2023',
-  },
-  {
-    id: 5,
-    title: 'Reels: Bastidores da Agência',
-    channel: 'Instagram',
-    status: 'Publicado',
-    owner: 'Maria Clara',
-    date: '20 Out, 2023',
-  },
-]
+import useMainStore from '@/stores/main'
 
 export default function ContentManager() {
+  const { posts } = useMainStore()
   const { toast } = useToast()
 
   const handleAction = (action: string) => {
@@ -67,35 +26,42 @@ export default function ContentManager() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'Publicado':
+      case 'Produção':
         return (
           <Badge
             variant="outline"
             className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 font-medium"
           >
-            Publicado
+            Produção
           </Badge>
         )
-      case 'Agendado':
+      case 'Alteração':
         return (
           <Badge
             variant="outline"
             className="bg-orange-500/10 text-orange-500 border-orange-500/20 font-medium"
           >
-            Agendado
+            Alteração
           </Badge>
         )
-      case 'Rascunho':
+      case 'Revisão':
+        return (
+          <Badge
+            variant="outline"
+            className="bg-blue-500/10 text-blue-500 border-blue-500/20 font-medium"
+          >
+            Revisão
+          </Badge>
+        )
+      default:
         return (
           <Badge
             variant="outline"
             className="bg-muted/50 text-muted-foreground border-border font-medium"
           >
-            Rascunho
+            {status}
           </Badge>
         )
-      default:
-        return null
     }
   }
 
@@ -130,13 +96,15 @@ export default function ContentManager() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {contents.map((item) => (
+              {posts.map((item) => (
                 <TableRow key={item.id} className="group hover:bg-muted/20 transition-colors">
                   <TableCell className="font-medium">{item.title}</TableCell>
-                  <TableCell className="text-muted-foreground">{item.channel}</TableCell>
+                  <TableCell className="text-muted-foreground">{item.format}</TableCell>
                   <TableCell>{getStatusBadge(item.status)}</TableCell>
-                  <TableCell className="text-muted-foreground">{item.owner}</TableCell>
-                  <TableCell className="text-muted-foreground">{item.date}</TableCell>
+                  <TableCell className="text-muted-foreground">Admin</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {new Date(item.postDate).toLocaleDateString('pt-BR')}
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Button

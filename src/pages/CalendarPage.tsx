@@ -8,11 +8,12 @@ import {
 } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { Calendar as CalendarIcon, Clock, User } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, User, CheckCircle2 } from 'lucide-react'
+import useMainStore from '@/stores/main'
 
 const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
-const getDaysInMonth = (year: number, month: number) => {
+const getDaysInMonth = (year: number, month: number, posts: any[]) => {
   const date = new Date(year, month, 1)
   const days = []
 
@@ -23,29 +24,25 @@ const getDaysInMonth = (year: number, month: number) => {
 
   while (date.getMonth() === month) {
     const curDate = new Date(date)
-    const dayOfMonth = curDate.getDate()
 
-    const events = []
-    if (dayOfMonth === 5)
-      events.push({
-        title: 'Post Instagram: Dicas',
-        type: 'social',
+    const dayPosts = posts
+      .filter((p) => {
+        const pDate = new Date(p.postDate)
+        return (
+          pDate.getDate() === curDate.getDate() &&
+          pDate.getMonth() === curDate.getMonth() &&
+          pDate.getFullYear() === curDate.getFullYear()
+        )
+      })
+      .map((p) => ({
+        title: p.title,
+        type: p.format,
+        status: p.status,
         time: '10:00',
-        owner: 'Maria Clara',
-      })
-    if (dayOfMonth === 12)
-      events.push({ title: 'Artigo Blog: SEO', type: 'blog', time: '14:30', owner: 'João Silva' })
-    if (dayOfMonth === 18)
-      events.push({ title: 'Vídeo YouTube', type: 'video', time: '18:00', owner: 'Pedro Valor' })
-    if (dayOfMonth === 25)
-      events.push({
-        title: 'LinkedIn: Autoridade',
-        type: 'social',
-        time: '09:00',
-        owner: 'Pedro Valor',
-      })
+        owner: 'Admin',
+      }))
 
-    days.push({ date: curDate, isCurrentMonth: true, events })
+    days.push({ date: curDate, isCurrentMonth: true, events: dayPosts })
     date.setDate(date.getDate() + 1)
   }
 
@@ -58,10 +55,11 @@ const getDaysInMonth = (year: number, month: number) => {
 }
 
 export default function CalendarPage() {
+  const { posts } = useMainStore()
   const [selectedDate, setSelectedDate] = useState<{ date: Date; events: any[] } | null>(null)
 
   const today = new Date()
-  const days = getDaysInMonth(today.getFullYear(), today.getMonth())
+  const days = getDaysInMonth(today.getFullYear(), today.getMonth(), posts)
 
   const isToday = (d: Date) =>
     d.getDate() === today.getDate() &&
@@ -152,10 +150,13 @@ export default function CalendarPage() {
                 </div>
                 <div className="flex flex-col gap-1.5 text-sm text-muted-foreground mt-2">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" /> <span>{e.time}</span>
+                    <CheckCircle2 className="w-4 h-4" />{' '}
+                    <span>
+                      Status: <strong className="text-foreground">{e.status}</strong>
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4" /> <span>{e.owner}</span>
+                    <Clock className="w-4 h-4" /> <span>{e.time}</span>
                   </div>
                 </div>
               </div>
