@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useParams } from 'react-router-dom'
 import { DriveItem } from './types'
 import useMainStore from '@/stores/main'
 
@@ -35,13 +36,22 @@ export function DriveProvider({ children }: { children: ReactNode }) {
     deleteDriveItem: deleteDriveItemGlobal,
   } = useMainStore()
 
+  const { id: clientId } = useParams<{ id: string }>()
+
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchQuery, setSearchQuery] = useState('')
   const [openDocuments, setOpenDocuments] = useState<string[]>([])
   const [activeDocumentId, setActiveDocumentId] = useState<string | null>(null)
 
-  const items = driveItems
+  useEffect(() => {
+    setCurrentFolderId(null)
+    setSearchQuery('')
+    setOpenDocuments([])
+    setActiveDocumentId(null)
+  }, [clientId])
+
+  const items = driveItems.filter((item) => item.clientId === clientId)
 
   const setItems = () => {}
 
@@ -70,6 +80,7 @@ export function DriveProvider({ children }: { children: ReactNode }) {
       type: 'folder',
       lastModified: new Date().toISOString().split('T')[0],
       createdBy: 'Você',
+      clientId,
     })
   }
 
@@ -83,6 +94,7 @@ export function DriveProvider({ children }: { children: ReactNode }) {
       createdBy: 'Você',
       size: type === 'document' ? '-' : '1.2 MB',
       content: type === 'document' ? '<h1>Novo Documento</h1><p><br></p>' : undefined,
+      clientId,
     }
     addDriveItem(newItem)
     if (type === 'document') {
@@ -110,6 +122,7 @@ export function DriveProvider({ children }: { children: ReactNode }) {
         ...itemToDuplicate,
         id: Date.now().toString(),
         name: `${itemToDuplicate.name} (Cópia)`,
+        clientId,
       })
     }
   }
