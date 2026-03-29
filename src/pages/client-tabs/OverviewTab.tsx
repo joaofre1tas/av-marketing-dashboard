@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Upload, Download, Clock, Instagram, Youtube, Linkedin, Save } from 'lucide-react'
+import {
+  Upload,
+  Download,
+  Clock,
+  Instagram,
+  Youtube,
+  Linkedin,
+  Save,
+  Plus,
+  Trash2,
+} from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -14,7 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
-import useMainStore from '@/stores/main'
+import useMainStore, { SocialMediaLink } from '@/stores/main'
 
 export default function OverviewTab() {
   const { id } = useParams()
@@ -27,20 +37,13 @@ export default function OverviewTab() {
 
   const [colors, setColors] = useState(client?.guidelines?.colors || '')
   const [voiceAndTone, setVoiceAndTone] = useState(client?.guidelines?.voiceAndTone || '')
-
-  const [niche, setNiche] = useState(client?.niche || '')
-  const [responsible, setResponsible] = useState(client?.responsible || '')
-  const [targetAudience, setTargetAudience] = useState(client?.targetAudience || '')
-  const [status, setStatus] = useState<'Ativo' | 'Pausado' | 'Encerrado'>(client?.status || 'Ativo')
+  const [socials, setSocials] = useState<SocialMediaLink[]>(client?.socials || [])
 
   useEffect(() => {
     if (client) {
       setColors(client.guidelines?.colors || '')
       setVoiceAndTone(client.guidelines?.voiceAndTone || '')
-      setNiche(client.niche || '')
-      setResponsible(client.responsible || '')
-      setTargetAudience(client.targetAudience || '')
-      setStatus(client.status || 'Ativo')
+      setSocials(client.socials || [])
     }
   }, [client])
 
@@ -69,12 +72,23 @@ export default function OverviewTab() {
     }
   }
 
+  const handleAddSocial = () => {
+    setSocials([...socials, { platform: 'Instagram', url: '' }])
+  }
+
+  const handleRemoveSocial = (index: number) => {
+    setSocials(socials.filter((_, i) => i !== index))
+  }
+
+  const handleSocialChange = (index: number, field: keyof SocialMediaLink, value: string) => {
+    const newSocials = [...socials]
+    newSocials[index] = { ...newSocials[index], [field]: value }
+    setSocials(newSocials)
+  }
+
   const handleSaveChanges = () => {
     updateClient(client.id, {
-      niche,
-      responsible,
-      targetAudience,
-      status,
+      socials: socials.filter((s) => s.url.trim() !== ''),
       guidelines: {
         ...client.guidelines,
         colors,
@@ -124,54 +138,6 @@ export default function OverviewTab() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
-            <h3 className="text-lg font-semibold font-sans mb-6 text-foreground">
-              Informações do Cliente
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Nicho</Label>
-                <Input
-                  value={niche}
-                  onChange={(e) => setNiche(e.target.value)}
-                  placeholder="Ex: Tecnologia"
-                  className="bg-background border-border"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Responsável</Label>
-                <Input
-                  value={responsible}
-                  onChange={(e) => setResponsible(e.target.value)}
-                  placeholder="Ex: João Silva"
-                  className="bg-background border-border"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <Select value={status} onValueChange={(val: any) => setStatus(val)}>
-                  <SelectTrigger className="bg-background border-border">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Ativo">Ativo</SelectItem>
-                    <SelectItem value="Pausado">Pausado</SelectItem>
-                    <SelectItem value="Encerrado">Encerrado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="col-span-1 md:col-span-2 space-y-2">
-                <Label>Público-alvo</Label>
-                <Textarea
-                  value={targetAudience}
-                  onChange={(e) => setTargetAudience(e.target.value)}
-                  placeholder="Descreva o público-alvo"
-                  className="min-h-[80px] bg-background border-border"
-                />
-              </div>
-            </div>
-          </div>
-
           <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
             <h3 className="text-lg font-semibold font-sans mb-6 text-foreground">
               Diretrizes da Marca
@@ -228,50 +194,74 @@ export default function OverviewTab() {
             </div>
           </div>
 
-          <div className="flex justify-end">
-            <Button onClick={handleSaveChanges} className="gap-2">
-              <Save className="h-4 w-4" /> Salvar Alterações
-            </Button>
-          </div>
-
           <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold font-sans text-foreground">Redes Sociais</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAddSocial}
+                className="h-8 border-border"
+              >
+                <Plus className="h-3 w-3 mr-2" /> Adicionar
+              </Button>
             </div>
             <div className="space-y-4">
-              {client.socials.length === 0 && (
+              {socials.length === 0 && (
                 <p className="text-sm text-muted-foreground py-4 border border-dashed border-border rounded-md text-center">
                   Nenhuma rede social cadastrada para este cliente.
                 </p>
               )}
-              {client.socials.map((social, idx) => (
-                <div
-                  key={idx}
-                  className="flex flex-col sm:flex-row gap-4 items-start sm:items-center"
-                >
-                  <div className="flex items-center gap-2 w-32 shrink-0">
-                    {getPlatformIcon(social.platform)}
-                    <Label>{social.platform}</Label>
-                  </div>
+              {socials.map((social, index) => (
+                <div key={index} className="flex items-center gap-3 animate-fade-in-down">
+                  <Select
+                    value={social.platform}
+                    onValueChange={(val) => handleSocialChange(index, 'platform', val)}
+                  >
+                    <SelectTrigger className="w-[140px] bg-background border-border shrink-0">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Instagram">Instagram</SelectItem>
+                      <SelectItem value="YouTube">YouTube</SelectItem>
+                      <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Input
                     value={social.url}
-                    readOnly
-                    placeholder="URL do Perfil"
-                    className="w-full bg-background/50 border-border text-muted-foreground"
+                    onChange={(e) => handleSocialChange(index, 'url', e.target.value)}
+                    placeholder="Link do perfil"
+                    className="flex-1 bg-background border-border"
                   />
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
-                    className="shrink-0 text-muted-foreground"
-                    asChild
+                    className="text-muted-foreground hover:text-destructive shrink-0"
+                    onClick={() => handleRemoveSocial(index)}
                   >
-                    <a href={social.url} target="_blank" rel="noreferrer">
-                      <ExternalLinkIcon />
-                    </a>
+                    <Trash2 className="h-4 w-4" />
                   </Button>
+                  {social.url.trim() !== '' && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0 text-muted-foreground"
+                      asChild
+                    >
+                      <a href={social.url} target="_blank" rel="noreferrer">
+                        <ExternalLinkIcon />
+                      </a>
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="flex justify-end">
+            <Button onClick={handleSaveChanges} className="gap-2">
+              <Save className="h-4 w-4" /> Salvar Alterações
+            </Button>
           </div>
         </div>
 

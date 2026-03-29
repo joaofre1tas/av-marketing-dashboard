@@ -51,10 +51,6 @@ export interface Client {
   coverImage?: string
   socials: SocialMediaLink[]
   guidelines?: BrandGuidelines
-  niche?: string
-  responsible?: string
-  targetAudience?: string
-  status?: 'Ativo' | 'Pausado' | 'Encerrado'
 }
 
 export interface GlobalState {
@@ -79,10 +75,6 @@ const initialState: GlobalState = {
         { platform: 'LinkedIn', url: 'https://linkedin.com/company/techcorp' },
         { platform: 'YouTube', url: 'https://youtube.com/@techcorp' },
       ],
-      niche: 'Tecnologia',
-      responsible: 'João Silva',
-      targetAudience: 'Empresas B2B',
-      status: 'Ativo',
     },
     {
       id: '2',
