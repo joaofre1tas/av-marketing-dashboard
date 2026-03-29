@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table'
 
 export function DriveList({ items }: { items: DriveItem[] }) {
-  const { setCurrentFolderId } = useDrive()
+  const { setCurrentFolderId, openDocument } = useDrive()
 
   return (
     <div className="border border-border rounded-lg bg-card overflow-hidden shadow-sm">
@@ -35,7 +35,10 @@ export function DriveList({ items }: { items: DriveItem[] }) {
             <DriveContextMenu key={item.id} item={item}>
               <TableRow
                 className="border-border cursor-pointer hover:bg-secondary/30 transition-colors group"
-                onDoubleClick={() => item.type === 'folder' && setCurrentFolderId(item.id)}
+                onDoubleClick={() => {
+                  if (item.type === 'folder') setCurrentFolderId(item.id)
+                  if (item.type === 'document') openDocument(item.id)
+                }}
               >
                 <TableCell className="font-medium flex items-center gap-3 text-foreground group-hover:text-primary transition-colors">
                   <ItemIcon

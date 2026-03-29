@@ -4,14 +4,17 @@ import { DriveContextMenu } from './DriveContextMenu'
 import { useDrive } from './DriveContext'
 
 export function DriveGrid({ items }: { items: DriveItem[] }) {
-  const { setCurrentFolderId } = useDrive()
+  const { setCurrentFolderId, openDocument } = useDrive()
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
       {items.map((item) => (
         <DriveContextMenu key={item.id} item={item}>
           <div
-            onDoubleClick={() => item.type === 'folder' && setCurrentFolderId(item.id)}
+            onDoubleClick={() => {
+              if (item.type === 'folder') setCurrentFolderId(item.id)
+              if (item.type === 'document') openDocument(item.id)
+            }}
             className="flex flex-col items-center p-4 bg-card border border-border rounded-lg hover:border-primary/50 transition-all cursor-pointer group shadow-sm hover:shadow-md"
           >
             <div className="h-16 w-16 mb-4 flex items-center justify-center rounded-lg bg-secondary/30 group-hover:bg-secondary/60 transition-colors">

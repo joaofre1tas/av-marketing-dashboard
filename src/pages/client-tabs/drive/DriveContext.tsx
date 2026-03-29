@@ -17,6 +17,11 @@ interface DriveContextType {
   togglePin: (id: string) => void
   duplicateItem: (id: string) => void
   moveItem: (id: string, newParentId: string | null) => void
+  openDocuments: string[]
+  activeDocumentId: string | null
+  openDocument: (id: string) => void
+  closeDocument: (id: string) => void
+  setActiveDocumentId: (id: string | null) => void
 }
 
 const initialItems: DriveItem[] = [
@@ -45,6 +50,8 @@ const initialItems: DriveItem[] = [
     lastModified: '2026-03-15',
     createdBy: 'Ana Silva',
     isPinned: true,
+    content:
+      '<h1>Briefing Inicial de Campanha</h1><p>Este é o documento de briefing para a campanha do Q1.</p><ul><li>Objetivo: Brand Awareness</li><li>Público: Jovens 18-24</li></ul>',
   },
   {
     id: '4',
@@ -76,11 +83,32 @@ const initialItems: DriveItem[] = [
 
 export const DriveContext = createContext<DriveContextType | null>(null)
 
+import { DocumentEditor } from './DocumentEditor'
+
 export function DriveProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<DriveItem[]>(initialItems)
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchQuery, setSearchQuery] = useState('')
+  const [openDocuments, setOpenDocuments] = useState<string[]>([])
+  const [activeDocumentId, setActiveDocumentId] = useState<string | null>(null)
+
+  const openDocument = (id: string) => {
+    if (!openDocuments.includes(id)) {
+      setOpenDocuments((prev) => [...prev, id])
+    }
+    setActiveDocumentId(id)
+  }
+
+  const closeDocument = (id: string) => {
+    setOpenDocuments((prev) => {
+      const next = prev.filter((docId) => docId !== id)
+      if (activeDocumentId === id) {
+        setActiveDocumentId(next.length > 0 ? next[next.length - 1] : null)
+      }
+      return next
+    })
+  }
 
   const createFolder = (name: string) => {
     const newItem: DriveItem = {
@@ -102,9 +130,13 @@ export function DriveProvider({ children }: { children: ReactNode }) {
       type,
       lastModified: new Date().toISOString().split('T')[0],
       createdBy: 'Você',
-      size: '1.2 MB',
+      size: type === 'document' ? '-' : '1.2 MB',
+      content: type === 'document' ? '<h1>Novo Documento</h1><p><br></p>' : undefined,
     }
     setItems((prev) => [...prev, newItem])
+    if (type === 'document') {
+      openDocument(newItem.id)
+    }
   }
 
   const renameItem = (id: string, newName: string) => {
@@ -157,9 +189,15 @@ export function DriveProvider({ children }: { children: ReactNode }) {
         togglePin,
         duplicateItem,
         moveItem,
+        openDocuments,
+        activeDocumentId,
+        openDocument,
+        closeDocument,
+        setActiveDocumentId,
       }}
     >
       {children}
+      <DocumentEditor />
     </DriveContext.Provider>
   )
 }

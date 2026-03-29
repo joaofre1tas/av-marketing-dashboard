@@ -9,4 +9,5 @@ export interface DriveItem {
   createdBy: string
   size?: string
   isPinned?: boolean
+  content?: string
 }
