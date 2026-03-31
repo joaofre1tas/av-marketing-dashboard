@@ -1,13 +1,23 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { DriveProvider, useDrive } from './drive/DriveContext'
 import { DriveToolbar } from './drive/DriveToolbar'
 import { DriveGrid } from './drive/DriveGrid'
 import { DriveList } from './drive/DriveList'
-import { Folder, Pin, UploadCloud, File as FileIcon, XCircle, CheckCircle2 } from 'lucide-react'
+import {
+  Folder,
+  Pin,
+  UploadCloud,
+  File as FileIcon,
+  XCircle,
+  CheckCircle2,
+  Loader2,
+  Search,
+} from 'lucide-react'
 import { DocumentEditor } from './drive/DocumentEditor'
 import { Progress } from '@/components/ui/progress'
 import { DriveItemType } from './drive/types'
 import { cn } from '@/lib/utils'
+import { DriveSearchResults } from './drive/DriveSearchResults'
 
 interface UploadTask {
   id: string
@@ -86,6 +96,17 @@ function DriveContent() {
   const [isDragging, setIsDragging] = useState(false)
   const dragCounter = useRef(0)
   const [uploads, setUploads] = useState<UploadTask[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+
+  useEffect(() => {
+    if (searchQuery) {
+      setIsSearching(true)
+      const timer = setTimeout(() => setIsSearching(false), 300)
+      return () => clearTimeout(timer)
+    } else {
+      setIsSearching(false)
+    }
+  }, [searchQuery])
 
   const onDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -197,9 +218,10 @@ function DriveContent() {
   )
 
   let currentItems = items.filter((item) => item.parentId === currentFolderId)
+  let searchResults: typeof items = []
 
   if (searchQuery) {
-    currentItems = items.filter((item) =>
+    searchResults = items.filter((item) =>
       item.name.toLowerCase().includes(searchQuery.toLowerCase()),
     )
   }
@@ -255,31 +277,59 @@ function DriveContent() {
           </section>
         )}
 
-        <section className="flex-1 flex flex-col">
-          {pinnedItems.length > 0 && !searchQuery && (
+        {searchQuery ? (
+          <section className="flex-1 flex flex-col">
             <h4 className="flex items-center gap-2 text-sm font-semibold tracking-wide text-foreground mb-4 uppercase">
-              <Folder className="h-4 w-4 text-muted-foreground" /> Todos os Arquivos
+              <Search className="h-4 w-4 text-primary" /> Resultados da Busca
             </h4>
-          )}
-
-          {currentItems.length > 0 ? (
-            viewMode === 'grid' ? (
-              <DriveGrid items={currentItems} />
-            ) : (
-              <DriveList items={currentItems} />
-            )
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center py-24 text-center border-2 border-dashed border-border rounded-lg bg-card/50 transition-colors hover:bg-secondary/10 min-h-[300px]">
-              <div className="h-16 w-16 rounded-full bg-secondary/50 flex items-center justify-center mb-4">
-                <UploadCloud className="h-8 w-8 text-muted-foreground opacity-50" />
+            {isSearching ? (
+              <div className="flex-1 flex flex-col items-center justify-center py-24 text-center border border-border rounded-lg bg-card/50 min-h-[300px]">
+                <Loader2 className="h-8 w-8 text-primary animate-spin mb-4" />
+                <p className="text-foreground font-medium">Buscando arquivos...</p>
               </div>
-              <p className="text-foreground font-medium text-lg">Nenhum arquivo encontrado</p>
-              <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-                Arraste arquivos para cá ou clique em Novo para adicionar.
-              </p>
-            </div>
-          )}
-        </section>
+            ) : searchResults.length > 0 ? (
+              <DriveSearchResults items={searchResults} />
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center py-24 text-center border-2 border-dashed border-border rounded-lg bg-card/50 transition-colors min-h-[300px]">
+                <div className="h-16 w-16 rounded-full bg-secondary/50 flex items-center justify-center mb-4">
+                  <Search className="h-8 w-8 text-muted-foreground opacity-50" />
+                </div>
+                <p className="text-foreground font-medium text-lg">
+                  Nenhum arquivo encontrado para '{searchQuery}'
+                </p>
+                <p className="text-sm text-muted-foreground mt-1 max-w-sm">
+                  Tente usar termos diferentes ou verifique a ortografia.
+                </p>
+              </div>
+            )}
+          </section>
+        ) : (
+          <section className="flex-1 flex flex-col">
+            {pinnedItems.length > 0 && (
+              <h4 className="flex items-center gap-2 text-sm font-semibold tracking-wide text-foreground mb-4 uppercase">
+                <Folder className="h-4 w-4 text-muted-foreground" /> Todos os Arquivos
+              </h4>
+            )}
+
+            {currentItems.length > 0 ? (
+              viewMode === 'grid' ? (
+                <DriveGrid items={currentItems} />
+              ) : (
+                <DriveList items={currentItems} />
+              )
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center py-24 text-center border-2 border-dashed border-border rounded-lg bg-card/50 transition-colors hover:bg-secondary/10 min-h-[300px]">
+                <div className="h-16 w-16 rounded-full bg-secondary/50 flex items-center justify-center mb-4">
+                  <UploadCloud className="h-8 w-8 text-muted-foreground opacity-50" />
+                </div>
+                <p className="text-foreground font-medium text-lg">Nenhum arquivo encontrado</p>
+                <p className="text-sm text-muted-foreground mt-1 max-w-sm">
+                  Arraste arquivos para cá ou clique em Novo para adicionar.
+                </p>
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </div>
   )

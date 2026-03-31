@@ -26,6 +26,7 @@ interface DriveContextType {
   setActiveDocumentId: (id: string | null) => void
   draggingItemId: string | null
   setDraggingItemId: (id: string | null) => void
+  navigateToItem: (id: string) => void
 }
 
 export const DriveContext = createContext<DriveContextType | null>(null)
@@ -134,6 +135,21 @@ export function DriveProvider({ children }: { children: ReactNode }) {
     updateDriveItem(id, { parentId: newParentId })
   }
 
+  const navigateToItem = (id: string) => {
+    const item = items.find((i) => i.id === id)
+    if (!item) return
+
+    setSearchQuery('')
+    if (item.type === 'folder') {
+      setCurrentFolderId(item.id)
+    } else {
+      setCurrentFolderId(item.parentId)
+      if (item.type === 'document') {
+        openDocument(item.id)
+      }
+    }
+  }
+
   return (
     <DriveContext.Provider
       value={{
@@ -159,6 +175,7 @@ export function DriveProvider({ children }: { children: ReactNode }) {
         setActiveDocumentId,
         draggingItemId,
         setDraggingItemId,
+        navigateToItem,
       }}
     >
       {children}
