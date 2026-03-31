@@ -13,7 +13,7 @@ interface DriveContextType {
   setViewMode: (mode: 'grid' | 'list') => void
   setSearchQuery: (query: string) => void
   createFolder: (name: string) => void
-  createFile: (name: string, type: DriveItem['type']) => void
+  createFile: (name: string, type: DriveItem['type'], size?: string) => void
   renameItem: (id: string, newName: string) => void
   deleteItem: (id: string) => void
   togglePin: (id: string) => void
@@ -84,15 +84,15 @@ export function DriveProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  const createFile = (name: string, type: DriveItem['type']) => {
+  const createFile = (name: string, type: DriveItem['type'], size?: string) => {
     const newItem: DriveItem = {
-      id: Date.now().toString(),
+      id: Date.now().toString() + Math.random().toString().slice(2, 6),
       parentId: currentFolderId,
       name,
       type,
       lastModified: new Date().toISOString().split('T')[0],
       createdBy: 'Você',
-      size: type === 'document' ? '-' : '1.2 MB',
+      size: size || (type === 'document' ? '-' : '1.2 MB'),
       content: type === 'document' ? '<h1>Novo Documento</h1><p><br></p>' : undefined,
       clientId,
     }
