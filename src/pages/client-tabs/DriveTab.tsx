@@ -80,7 +80,8 @@ function UploadPanel({ uploads }: { uploads: UploadTask[] }) {
 }
 
 function DriveContent() {
-  const { items, currentFolderId, viewMode, searchQuery, activeDocumentId, createFile } = useDrive()
+  const { items, currentFolderId, viewMode, searchQuery, activeDocumentId, createFile, moveItem } =
+    useDrive()
 
   const [isDragging, setIsDragging] = useState(false)
   const dragCounter = useRef(0)
@@ -90,7 +91,13 @@ function DriveContent() {
     e.preventDefault()
     e.stopPropagation()
     dragCounter.current += 1
-    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+
+    // Only show upload overlay if it contains files (external drag)
+    if (
+      e.dataTransfer.types &&
+      e.dataTransfer.types.includes('Files') &&
+      !e.dataTransfer.types.includes('application/x-drive-item')
+    ) {
       setIsDragging(true)
     }
   }, [])
@@ -107,6 +114,11 @@ function DriveContent() {
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
+
+    // If dragging an internal item, allow dropping to root
+    if (e.dataTransfer.types && e.dataTransfer.types.includes('application/x-drive-item')) {
+      e.dataTransfer.dropEffect = 'move'
+    }
   }, [])
 
   const onDrop = useCallback(
@@ -115,6 +127,13 @@ function DriveContent() {
       e.stopPropagation()
       setIsDragging(false)
       dragCounter.current = 0
+
+      const driveItemId = e.dataTransfer.getData('application/x-drive-item')
+      if (driveItemId) {
+        // Move to root
+        moveItem(driveItemId, null)
+        return
+      }
 
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
         const files = Array.from(e.dataTransfer.files)
@@ -174,7 +193,7 @@ function DriveContent() {
         })
       }
     },
-    [createFile],
+    [createFile, moveItem],
   )
 
   let currentItems = items.filter((item) => item.parentId === currentFolderId)

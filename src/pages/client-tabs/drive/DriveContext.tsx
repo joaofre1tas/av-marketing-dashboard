@@ -24,6 +24,8 @@ interface DriveContextType {
   openDocument: (id: string) => void
   closeDocument: (id: string) => void
   setActiveDocumentId: (id: string | null) => void
+  draggingItemId: string | null
+  setDraggingItemId: (id: string | null) => void
 }
 
 export const DriveContext = createContext<DriveContextType | null>(null)
@@ -43,6 +45,7 @@ export function DriveProvider({ children }: { children: ReactNode }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [openDocuments, setOpenDocuments] = useState<string[]>([])
   const [activeDocumentId, setActiveDocumentId] = useState<string | null>(null)
+  const [draggingItemId, setDraggingItemId] = useState<string | null>(null)
 
   useEffect(() => {
     setCurrentFolderId(null)
@@ -154,6 +157,8 @@ export function DriveProvider({ children }: { children: ReactNode }) {
         openDocument,
         closeDocument,
         setActiveDocumentId,
+        draggingItemId,
+        setDraggingItemId,
       }}
     >
       {children}
