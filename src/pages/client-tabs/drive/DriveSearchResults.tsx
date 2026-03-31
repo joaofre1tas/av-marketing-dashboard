@@ -14,7 +14,7 @@ export function DriveSearchResults({ items }: { items: DriveItem[] }) {
   const { navigateToItem, items: allItems } = useDrive()
 
   const getItemPath = (item: DriveItem) => {
-    const path: string[] = []
+    const path: string[] = [item.name]
     let current = item.parentId
     while (current) {
       const parent = allItems.find((i) => i.id === current)
@@ -25,7 +25,7 @@ export function DriveSearchResults({ items }: { items: DriveItem[] }) {
         break
       }
     }
-    return path.length > 0 ? path.join(' > ') : 'Meu Drive'
+    return path.length > 1 ? path.join(' > ') : `Meu Drive > ${item.name}`
   }
 
   return (
@@ -60,7 +60,15 @@ export function DriveSearchResults({ items }: { items: DriveItem[] }) {
                   {getItemPath(item)}
                 </TableCell>
                 <TableCell className="text-muted-foreground capitalize">
-                  {item.type === 'folder' ? 'Pasta' : item.type}
+                  {item.type === 'folder'
+                    ? 'Pasta'
+                    : item.type === 'document'
+                      ? 'Documento'
+                      : item.type === 'image'
+                        ? 'Imagem'
+                        : item.type === 'pdf'
+                          ? 'PDF'
+                          : item.type}
                 </TableCell>
                 <TableCell className="text-muted-foreground hidden md:table-cell">
                   {item.lastModified}
